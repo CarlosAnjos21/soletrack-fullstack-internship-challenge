@@ -1,8 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
+import { Role } from "@prisma/client";
+
+interface AuthenticatedUser {
+  id: string;
+  role: Role;
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: AuthenticatedUser;
+}
 
 export function authMiddleware(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -15,8 +25,8 @@ export function authMiddleware(
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = verifyToken(token);
-    (req as any).user = decoded;
+    const decoded = verifyToken(token) as AuthenticatedUser;
+    req.user = decoded;
     next();
   } catch {
     return res.status(401).json({ message: "Invalid token" });

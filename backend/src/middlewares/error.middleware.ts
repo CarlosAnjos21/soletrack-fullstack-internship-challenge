@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 
 export function errorMiddleware(
-  err: any,
+  err: Error & { status?: number },
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  console.error(err);
+  console.error(`[Error] ${err.message}`, err);
 
   return res.status(err.status || 500).json({
     message: err.message || "Internal server error",
