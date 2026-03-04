@@ -19,12 +19,12 @@ export interface CreateProductionRequest {
 
 export const productionService = {
   async getAll(): Promise<Production[]> {
-    const response = await api.get<Production[]>("/production");
+    const response = await api.get<Production[]>("/orders");
     return response.data;
   },
 
   async create(data: CreateProductionRequest): Promise<ProductionOrder> {
-    const response = await api.post<ProductionOrder>("/production", data);
+    const response = await api.post<ProductionOrder>("/orders", data);
     return response.data;
   },
 
@@ -33,10 +33,9 @@ export const productionService = {
     status: ProductionStatus
   ): Promise<ProductionOrder> {
     const response = await api.patch<ProductionOrder>(
-      `/production/${id}/status`,
+      `/orders/${id}/status`,
       { status }
     );
-
     return response.data;
   },
 };
