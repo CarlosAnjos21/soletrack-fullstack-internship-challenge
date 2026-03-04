@@ -6,17 +6,9 @@ import { authorize } from "../middlewares/role.middleware";
 const router = Router();
 const controller = new AuthController();
 
-router.post("/login", controller.login.bind(controller));
-
-router.post(
-  "/register",
-  authMiddleware,
-  authorize("ADMIN"),
-  controller.register.bind(controller),
-);
-
-export default router;
-
+// Async wrapper para tratar erros
+const catchAsync = (fn: Function) => (req: any, res: any, next: any) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
 
 /**
  * @swagger
@@ -27,14 +19,13 @@ export default router;
 
 /**
  * @swagger
- * /auth/login:
+ * api/auth/login:
  *   post:
- *     summary: Realiza login de um usuário
- *     description: Autentica um usuário usando email e senha. Retorna um token JWT.
+ *     summary: Login de usuário
+ *     description: Autentica usuário e retorna token JWT
  *     tags: [Auth]
  *     requestBody:
  *       required: true
- *       description: Dados do usuário para login
  *       content:
  *         application/json:
  *           schema:
@@ -52,33 +43,22 @@ export default router;
  *     responses:
  *       200:
  *         description: Login realizado com sucesso
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: Token JWT para autenticação
  *       401:
  *         description: Credenciais inválidas
- *       500:
- *         description: Erro interno do servidor
  */
-router.post("/login", controller.login.bind(controller));
+router.post("/login", catchAsync(controller.login.bind(controller)));
 
 /**
  * @swagger
- * /auth/register:
+ * api/auth/register:
  *   post:
- *     summary: Registra um novo usuário
- *     description: Cria um usuário novo. Apenas ADMIN pode registrar novos usuários.
+ *     summary: Registra usuário
+ *     description: Apenas ADMIN pode registrar novos usuários
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
- *       description: Dados do novo usuário
  *       content:
  *         application/json:
  *           schema:
@@ -87,6 +67,7 @@ router.post("/login", controller.login.bind(controller));
  *               - name
  *               - email
  *               - password
+ *               - role
  *             properties:
  *               name:
  *                 type: string
@@ -99,14 +80,40 @@ router.post("/login", controller.login.bind(controller));
  *                 example: "123456"
  *               role:
  *                 type: string
- *                 enum: [ADMIN, OPERATOR, USER]
- *                 example: USER
+ *                 enum: ["ADMIN","OPERATOR"]
+ *                 example: OPERATOR
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
  *       403:
  *         description: Sem permissão (não ADMIN)
- *       500:
- *         description: Erro interno do servidor
  */
-router.post("/register", authMiddleware, authorize("ADMIN"), controller.register.bind(controller));
+router.post("/register", authMiddleware, authorize("ADMIN"), catchAsync(controller.register.bind(controller)));
+
+/**
+ * @swagger
+ * api/auth/{id}:
+ *   delete:
+ *     summary: Deleta usuário
+ *     description: Apenas ADMIN pode deletar usuários
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário a ser deletado
+ *     responses:
+ *       204:
+ *         description: Usuário deletado com sucesso
+ *       404:
+ *         description: Usuário não encontrado
+ *       403:
+ *         description: Sem permissão
+ */
+router.delete("/:id", authMiddleware, authorize("ADMIN"), catchAsync(controller.delete.bind(controller)));
+
+export default router;

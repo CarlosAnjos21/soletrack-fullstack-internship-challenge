@@ -2,15 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 import { Role } from "@prisma/client";
 
-interface AuthenticatedUser {
+export interface AuthenticatedUser {
   id: string;
   role: Role;
 }
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;
 }
 
+/**
+ * Middleware de autenticação JWT
+ */
 export function authMiddleware(
   req: AuthenticatedRequest,
   res: Response,
@@ -18,8 +21,11 @@ export function authMiddleware(
 ) {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token not provided" });
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({
+      status: "error",
+      message: "Token não fornecido ou inválido",
+    });
   }
 
   const token = authHeader.split(" ")[1];
@@ -28,7 +34,11 @@ export function authMiddleware(
     const decoded = verifyToken(token) as AuthenticatedUser;
     req.user = decoded;
     next();
-  } catch {
-    return res.status(401).json({ message: "Invalid token" });
+  } catch (err) {
+    console.error(
+      `[AuthMiddleware] Token inválido. Path: ${req.path}, IP: ${req.ip}`,
+      err
+    );
+    return res.status(401).json({ status: "error", message: "Token inválido" });
   }
 }

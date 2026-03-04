@@ -1,40 +1,29 @@
 import { Request, Response, NextFunction } from "express";
-import { ProductionOrderService } from "../services/productionOrder.service";
+import { ProductionOrderService, CreateProductionDTO } from "../services/productionOrder.service";
 import { z } from "zod";
 import { Status } from "@prisma/client";
+
+const service = new ProductionOrderService();
 
 const createSchema = z.object({
   model_id: z.string().uuid(),
   size: z.number().min(34).max(44),
   quantity_planned: z.number().positive(),
-  start_date: z.string(),
+  start_date: z.string().refine(date => !isNaN(Date.parse(date)), { message: "Data inválida" }),
 });
 
-const paramsSchema = z.object({
-  id: z.string().uuid(),
-});
-
-const updateStatusSchema = z.object({
-  status: z.nativeEnum(Status),
-});
-
-const updateProducedSchema = z.object({
-  quantity: z.number().positive(),
-});
+const idSchema = z.object({ id: z.string().uuid() });
+const updateStatusSchema = z.object({ status: z.nativeEnum(Status) });
+const updateProducedSchema = z.object({ quantity: z.number().positive() });
 
 export class ProductionOrderController {
-  private service = new ProductionOrderService();
-
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const body = createSchema.parse(req.body);
+      const dto: CreateProductionDTO = { ...body, start_date: new Date(body.start_date) };
+      const order = await service.create(dto);
 
-      const order = await this.service.create({
-        ...body,
-        start_date: new Date(body.start_date),
-      });
-
-      return res.status(201).json(order);
+      return res.status(201).json({ status: "success", data: order });
     } catch (error) {
       next(error);
     }
@@ -42,15 +31,11 @@ export class ProductionOrderController {
 
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const querySchema = z.object({
-        status: z.nativeEnum(Status).optional(),
-      });
-
+      const querySchema = z.object({ status: z.nativeEnum(Status).optional() });
       const { status } = querySchema.parse(req.query);
 
-      const orders = await this.service.findAll(status);
-
-      return res.json(orders);
+      const orders = await service.findAll(status);
+      return res.json({ status: "success", data: orders });
     } catch (error) {
       next(error);
     }
@@ -58,12 +43,11 @@ export class ProductionOrderController {
 
   async updateStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = paramsSchema.parse(req.params);
+      const { id } = idSchema.parse(req.params);
       const { status } = updateStatusSchema.parse(req.body);
+      const updated = await service.updateStatus(id, status);
 
-      const updated = await this.service.updateStatus(id, status);
-
-      return res.json(updated);
+      return res.json({ status: "success", message: "Status atualizado", data: updated });
     } catch (error) {
       next(error);
     }
@@ -71,12 +55,21 @@ export class ProductionOrderController {
 
   async updateProduced(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = paramsSchema.parse(req.params);
+      const { id } = idSchema.parse(req.params);
       const { quantity } = updateProducedSchema.parse(req.body);
+      const updated = await service.updateProduced(id, quantity);
 
-      const updated = await this.service.updateProduced(id, quantity);
+      return res.json({ status: "success", message: "Produção atualizada", data: updated });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-      return res.json(updated);
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = idSchema.parse(req.params);
+      await service.delete(id);
+      return res.status(204).send();
     } catch (error) {
       next(error);
     }

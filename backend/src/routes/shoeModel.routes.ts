@@ -5,19 +5,10 @@ import { authorize } from "../middlewares/role.middleware";
 
 const router = Router();
 const controller = new ShoeModelController();
+const catchAsync = (fn: Function) => (req: any, res: any, next: any) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
 
 router.use(authMiddleware);
-
-router.post("/", authorize("ADMIN"), controller.create.bind(controller));
-
-router.get("/", controller.findAll.bind(controller));
-
-router.put("/:id", authorize("ADMIN"), controller.update.bind(controller));
-
-router.delete("/:id", authorize("ADMIN"), controller.delete.bind(controller));
-
-export default router;
-
 
 /**
  * @swagger
@@ -28,10 +19,9 @@ export default router;
 
 /**
  * @swagger
- * /models/:
+ * /api/models:
  *   post:
- *     summary: Cria um novo modelo
- *     description: Apenas ADMIN pode criar modelos.
+ *     summary: Cria um novo modelo de sapato
  *     tags: [Models]
  *     security:
  *       - bearerAuth: []
@@ -43,32 +33,29 @@ export default router;
  *             type: object
  *             required:
  *               - name
- *               - size
- *               - color
+ *               - category
+ *               - base_cost
  *             properties:
  *               name:
  *                 type: string
  *                 example: "Tênis Esportivo"
- *               size:
- *                 type: number
- *                 example: 42
- *               color:
+ *               category:
  *                 type: string
- *                 example: "Preto"
+ *                 example: "Esportivo"
+ *               base_cost:
+ *                 type: number
+ *                 example: 120
  *     responses:
  *       201:
  *         description: Modelo criado com sucesso
- *       403:
- *         description: Sem permissão
  */
-router.post("/", authorize("ADMIN"), controller.create.bind(controller));
+router.post("/", authorize("ADMIN"), catchAsync(controller.create.bind(controller)));
 
 /**
  * @swagger
- * /models/:
+ * /api/models:
  *   get:
- *     summary: Lista todos os modelos
- *     description: Qualquer usuário autenticado pode listar os modelos.
+ *     summary: Lista todos os modelos de sapato
  *     tags: [Models]
  *     security:
  *       - bearerAuth: []
@@ -76,14 +63,13 @@ router.post("/", authorize("ADMIN"), controller.create.bind(controller));
  *       200:
  *         description: Lista de modelos
  */
-router.get("/", controller.findAll.bind(controller));
+router.get("/", catchAsync(controller.findAll.bind(controller)));
 
 /**
  * @swagger
- * /models/{id}:
+ * /api/models/{id}:
  *   put:
- *     summary: Atualiza um modelo existente
- *     description: Apenas ADMIN pode atualizar modelos.
+ *     summary: Atualiza um modelo de sapato
  *     tags: [Models]
  *     security:
  *       - bearerAuth: []
@@ -93,7 +79,6 @@ router.get("/", controller.findAll.bind(controller));
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do modelo
  *     requestBody:
  *       required: true
  *       content:
@@ -103,29 +88,21 @@ router.get("/", controller.findAll.bind(controller));
  *             properties:
  *               name:
  *                 type: string
- *                 example: "Tênis Casual"
- *               size:
- *                 type: number
- *                 example: 41
- *               color:
+ *               category:
  *                 type: string
- *                 example: "Branco"
+ *               base_cost:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Modelo atualizado com sucesso
- *       403:
- *         description: Sem permissão
- *       404:
- *         description: Modelo não encontrado
  */
-router.put("/:id", authorize("ADMIN"), controller.update.bind(controller));
+router.put("/:id", authorize("ADMIN"), catchAsync(controller.update.bind(controller)));
 
 /**
  * @swagger
- * /models/{id}:
+ * /api/models/{id}:
  *   delete:
- *     summary: Deleta um modelo
- *     description: Apenas ADMIN pode deletar modelos.
+ *     summary: Deleta um modelo de sapato
  *     tags: [Models]
  *     security:
  *       - bearerAuth: []
@@ -135,13 +112,10 @@ router.put("/:id", authorize("ADMIN"), controller.update.bind(controller));
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do modelo
  *     responses:
- *       200:
+ *       204:
  *         description: Modelo deletado com sucesso
- *       403:
- *         description: Sem permissão
- *       404:
- *         description: Modelo não encontrado
  */
-router.delete("/:id", authorize("ADMIN"), controller.delete.bind(controller));
+router.delete("/:id", authorize("ADMIN"), catchAsync(controller.delete.bind(controller)));
+
+export default router;

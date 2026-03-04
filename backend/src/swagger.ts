@@ -1,27 +1,37 @@
+import { Application } from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { Express } from "express";
+import path from "path";
 
-const options: swaggerJsdoc.Options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "API da Fábrica de Sapatos",
-      version: "1.0.0",
-      description: "Documentação das rotas de Auth, Orders e Shoe Models",
-    },
-    servers: [
-      {
-        url: "http://localhost:3000",
+export function setupSwagger(app: Application) {
+  const options: swaggerJsdoc.Options = {
+    definition: {
+      openapi: "3.0.3",
+      info: {
+        title: "API Sistema de Produção de Calçados",
+        version: "1.0.0",
+        description: "Documentação da API com Swagger",
       },
-    ],
-  },
-  // Aqui dizemos onde o Swagger vai procurar os comentários das rotas
-  apis: ["./src/routes/*.ts", "./src/controllers/*.ts"],
-};
+      servers: [
+        {
+          url: "http://localhost:3000/api",
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }],
+    },
+    apis: [path.join(__dirname, "./routes/*.ts")],
+  };
 
-const specs = swaggerJsdoc(options);
+  const specs = swaggerJsdoc(options);
 
-export const setupSwagger = (app: Express) => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-};
+}

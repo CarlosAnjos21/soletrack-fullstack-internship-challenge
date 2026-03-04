@@ -5,8 +5,8 @@ import shoeModelRoutes from "./shoeModel.routes";
 
 const router = Router();
 
-router.use("/auth", authRoutes);
 router.use("/orders", productionOrderRoutes);
 router.use("/models", shoeModelRoutes);
+router.use("/auth", authRoutes);
 
 export default router;

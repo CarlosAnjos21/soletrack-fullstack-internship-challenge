@@ -6,30 +6,10 @@ import { authorize } from "../middlewares/role.middleware";
 const router = Router();
 const controller = new ProductionOrderController();
 
+const catchAsync = (fn: Function) => (req: any, res: any, next: any) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
+
 router.use(authMiddleware);
-
-router.post(
-  "/",
-  authorize("ADMIN", "OPERATOR"),
-  controller.create.bind(controller),
-);
-
-router.get("/", controller.findAll.bind(controller));
-
-router.patch(
-  "/:id/status",
-  authorize("ADMIN", "OPERATOR"),
-  controller.updateStatus.bind(controller),
-);
-
-router.patch(
-  "/:id/produce",
-  authorize("ADMIN", "OPERATOR"),
-  controller.updateProduced.bind(controller),
-);
-
-export default router;
-
 
 /**
  * @swagger
@@ -40,10 +20,10 @@ export default router;
 
 /**
  * @swagger
- * /orders/:
+ * /orders:
  *   post:
  *     summary: Cria uma nova ordem de produção
- *     description: Apenas usuários ADMIN ou OPERATOR podem criar ordens.
+ *     description: Apenas ADMIN ou OPERATOR podem criar ordens.
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
@@ -54,64 +34,51 @@ export default router;
  *           schema:
  *             type: object
  *             required:
- *               - modelId
- *               - quantity
+ *               - model_id
+ *               - size
+ *               - quantity_planned
+ *               - start_date
  *             properties:
- *               modelId:
+ *               model_id:
  *                 type: string
  *                 example: "64f8b2c1e9a2f1234567890a"
- *               quantity:
+ *               size:
+ *                 type: number
+ *                 example: 40
+ *               quantity_planned:
  *                 type: number
  *                 example: 100
+ *               start_date:
+ *                 type: string
+ *                 example: "2026-03-03"
  *     responses:
  *       201:
  *         description: Ordem criada com sucesso
  *       403:
  *         description: Sem permissão
- *       500:
- *         description: Erro interno do servidor
  */
-router.post("/", authorize("ADMIN", "OPERATOR"), controller.create.bind(controller));
+router.post("/", authorize("ADMIN", "OPERATOR"), catchAsync(controller.create.bind(controller)));
 
 /**
  * @swagger
- * /orders/:
+ * /orders:
  *   get:
  *     summary: Lista todas as ordens de produção
- *     description: Qualquer usuário autenticado pode listar as ordens.
+ *     description: Qualquer usuário autenticado pode listar ordens. Aceita filtro opcional ?status=PLANNED|IN_PROGRESS|COMPLETED
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de ordens
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   modelId:
- *                     type: string
- *                   quantity:
- *                     type: number
- *                   produced:
- *                     type: number
- *                   status:
- *                     type: string
- *                     enum: [PENDING, IN_PROGRESS, DONE]
  */
-router.get("/", controller.findAll.bind(controller));
+router.get("/", catchAsync(controller.findAll.bind(controller)));
 
 /**
  * @swagger
  * /orders/{id}/status:
  *   patch:
  *     summary: Atualiza o status de uma ordem
- *     description: Apenas ADMIN ou OPERATOR podem atualizar o status.
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
@@ -122,29 +89,29 @@ router.get("/", controller.findAll.bind(controller));
  *         schema:
  *           type: string
  *         description: ID da ordem
- *       - in: query
- *         name: status
- *         required: true
- *         schema:
- *           type: string
- *           enum: [PENDING, IN_PROGRESS, DONE]
- *         description: Novo status da ordem
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: ["PLANNED", "IN_PROGRESS", "COMPLETED"]
  *     responses:
  *       200:
  *         description: Status atualizado com sucesso
- *       403:
- *         description: Sem permissão
- *       404:
- *         description: Ordem não encontrada
  */
-router.patch("/:id/status", authorize("ADMIN", "OPERATOR"), controller.updateStatus.bind(controller));
+router.patch("/:id/status", authorize("ADMIN", "OPERATOR"), catchAsync(controller.updateStatus.bind(controller)));
 
 /**
  * @swagger
  * /orders/{id}/produce:
  *   patch:
  *     summary: Atualiza a quantidade produzida de uma ordem
- *     description: Apenas ADMIN ou OPERATOR podem atualizar a produção.
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
@@ -154,19 +121,42 @@ router.patch("/:id/status", authorize("ADMIN", "OPERATOR"), controller.updateSta
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da ordem
- *       - in: query
- *         name: produced
- *         required: true
- *         schema:
- *           type: number
- *         description: Quantidade produzida
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - quantity
+ *             properties:
+ *               quantity:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Produção atualizada com sucesso
- *       403:
- *         description: Sem permissão
- *       404:
- *         description: Ordem não encontrada
  */
-router.patch("/:id/produce", authorize("ADMIN", "OPERATOR"), controller.updateProduced.bind(controller));
+router.patch("/:id/produce", authorize("ADMIN", "OPERATOR"), catchAsync(controller.updateProduced.bind(controller)));
+
+/**
+ * @swagger
+ * /orders/{id}:
+ *   delete:
+ *     summary: Deleta uma ordem de produção
+ *     description: Apenas ordens PLANNED podem ser deletadas.
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Ordem deletada com sucesso
+ */
+router.delete("/:id", authorize("ADMIN"), catchAsync(controller.delete.bind(controller)));
+
+export default router;

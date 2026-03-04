@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { ShoeModelService } from "../services/shoeModel.service";
+import { ShoeModelService, CreateShoeModelDTO } from "../services/shoeModel.service";
 import { z } from "zod";
+
+const service = new ShoeModelService();
 
 const createSchema = z.object({
   name: z.string().min(3),
@@ -8,20 +10,15 @@ const createSchema = z.object({
   base_cost: z.number().positive(),
 });
 
-const paramsSchema = z.object({
-  id: z.string().uuid(),
-});
+const idSchema = z.object({ id: z.string().uuid() });
 
 export class ShoeModelController {
-  private service = new ShoeModelService();
-
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = createSchema.parse(req.body);
+      const shoe = await service.create(data);
 
-      const shoe = await this.service.create(data);
-
-      return res.status(201).json(shoe);
+      return res.status(201).json({ status: "success", data: shoe });
     } catch (error) {
       next(error);
     }
@@ -29,9 +26,8 @@ export class ShoeModelController {
 
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const shoes = await this.service.findAll();
-
-      return res.json(shoes);
+      const shoes = await service.findAll();
+      return res.json({ status: "success", data: shoes });
     } catch (error) {
       next(error);
     }
@@ -39,14 +35,12 @@ export class ShoeModelController {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = paramsSchema.parse(req.params);
-
+      const { id } = idSchema.parse(req.params);
       const updateSchema = createSchema.partial();
-      const data = updateSchema.parse(req.body);
+      const data: Partial<CreateShoeModelDTO> = updateSchema.parse(req.body);
 
-      const updated = await this.service.update(id, data);
-
-      return res.json(updated);
+      const updated = await service.update(id, data);
+      return res.json({ status: "success", message: "Modelo atualizado", data: updated });
     } catch (error) {
       next(error);
     }
@@ -54,13 +48,11 @@ export class ShoeModelController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = paramsSchema.parse(req.params);
-
-      await this.service.delete(id);
-
+      const { id } = idSchema.parse(req.params);
+      await service.delete(id);
       return res.status(204).send();
     } catch (error) {
       next(error);
     }
   }
-}  
+}

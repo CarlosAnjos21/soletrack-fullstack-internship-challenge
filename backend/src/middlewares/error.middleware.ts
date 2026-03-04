@@ -1,14 +1,29 @@
 import { Request, Response, NextFunction } from "express";
+import { AppError } from "../errors/AppError";
 
 export function errorMiddleware(
-  err: Error & { status?: number },
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  console.error(`[Error] ${err.message}`, err);
+  let status = 500;
+  let message = "Erro interno no servidor";
 
-  return res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
+  if (err instanceof AppError) {
+    status = err.status;
+    message = err.message;
+  } else if (err instanceof Error) {
+    message = err.message;
+  }
+
+  console.error(`[Error] ${message}`, (err as Error).stack);
+
+  res.status(status).json({
+    status: "error",
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Erro interno no servidor"
+        : message,
   });
 }
