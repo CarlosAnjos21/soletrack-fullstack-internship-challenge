@@ -1,33 +1,68 @@
-import { createContext, useState, type ReactNode } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import { User } from "../types/user";
 
-interface AuthContextData {
-  user: string | null;
-  login: (username: string) => void;
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  login: (token: string, user: User) => void;
   logout: () => void;
+  setUser: (user: User) => void;
 }
 
-export const AuthContext = createContext<AuthContextData | undefined>(
-  undefined
-);
+export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUserState] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<string | null>(null);
+  // 🔄 Carrega usuário/token do localStorage ao iniciar
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
 
-  function login(username: string) {
-    setUser(username);
-  }
+    if (storedUser && storedToken && storedUser !== "undefined") {
+      try {
+        setUserState(JSON.parse(storedUser));
+        setToken(storedToken);
+      } catch (error) {
+        console.error("Erro ao interpretar JSON:", error);
+        setUserState(null);
+        setToken(null);
+      }
+    }
 
-  function logout() {
-    setUser(null);
-  }
+    setLoading(false);
+  }, []);
+
+  // 🔐 Login
+  const login = (token: string, userData: User) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    setToken(token);
+    setUserState(userData);
+  };
+
+  // 🚪 Logout
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    setToken(null);
+    setUserState(null);
+  };
+
+  // 📝 Atualiza apenas usuário
+  const setUser = (updatedUser: User) => {
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUserState(updatedUser);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};

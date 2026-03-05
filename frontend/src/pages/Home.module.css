@@ -1,0 +1,48 @@
+/* Home.module.css */
+.container {
+  padding: 2rem; /* Substitua o theme.spacing.lg pelo valor real */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 2rem; /* Substitua theme.spacing.lg */
+  color: #1f2937; /* Substitua theme.colors.text */
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem; /* Substitua theme.spacing.md */
+  margin-bottom: 2rem; /* theme.spacing.lg */
+}
+
+.statCard {
+  border-top: 3px solid #3b82f6; /* theme.colors.primary */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statCard h3 {
+  font-size: 0.85rem;
+  color: #6b7280; /* theme.colors.textSecondary */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statCard p {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1f2937; /* theme.colors.text */
+}
+
+.chartSection {
+  padding: 1rem; /* theme.spacing.md */
+}
+
+.chartSection h3 {
+  margin-bottom: 1rem; /* theme.spacing.md */
+}
