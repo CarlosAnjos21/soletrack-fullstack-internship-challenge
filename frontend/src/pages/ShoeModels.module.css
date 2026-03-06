@@ -2,13 +2,34 @@
   padding: 2rem;
 }
 
-.formRow {
+.title {
+  margin-bottom: 2rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.formCard {
+  margin-bottom: 2rem;
+}
+
+.row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: flex-end;
+  gap: 1.5rem;
   flex-wrap: wrap;
 }
 
-.title {
-  margin-bottom: 1rem;
+.inputWrapper {
+  flex: 1;
+  min-width: 250px;
+}
+
+.btn {
+  height: 42px;
+}
+
+.loading {
+  color: var(--text-light);
+  text-align: center;
+  padding: 2rem;
 }

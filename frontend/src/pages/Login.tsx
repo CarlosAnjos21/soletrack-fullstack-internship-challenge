@@ -1,18 +1,16 @@
+// src/pages/Login.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthService } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
-
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Input from "../components/Input";
-
 import styles from "./Login.module.css";
 
 const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,19 +23,12 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
       const { token, user } = await AuthService.login(form);
-
-      // 🔐 Atualiza contexto de autenticação
       login(token, user);
-
-      // 🚀 Redireciona para Home
-      navigate("/home", { replace: true });
+      navigate("/", { replace: true });
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message || "Falha na autenticação. Tente novamente.";
-      setError(message);
+      setError(err?.response?.data?.message || "Falha na autenticação.");
     } finally {
       setLoading(false);
     }
@@ -45,38 +36,33 @@ const Login: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      <Card className={styles.card}>
+      <Card className={styles.loginCard}>
         <div className={styles.header}>
-          <h1>Bem-vindo</h1>
-          <p>Entre com suas credenciais</p>
+          <h1>Footwear ERP</h1>
+          <p>Acesse o painel de produção</p>
         </div>
-
         <form className={styles.form} onSubmit={handleSubmit}>
           <Input
-            placeholder="Email"
+            label="E-mail"
             type="email"
             value={form.email}
             onChange={handleChange("email")}
             required
           />
-
           <Input
-            placeholder="Senha"
+            label="Senha"
             type="password"
             value={form.password}
             onChange={handleChange("password")}
             required
           />
-
-          <Button type="submit" disabled={loading}>
-            {loading ? "Autenticando..." : "Entrar"}
+          <Button type="submit" disabled={loading} className={styles.submitBtn}>
+            {loading ? "Verificando..." : "Entrar no Sistema"}
           </Button>
         </form>
-
         <p className={styles.footerText}>
-          Não tem conta? <Link to="/register">Registre-se aqui</Link>
+          Ainda não tem acesso? <Link to="/register">Solicitar registro</Link>
         </p>
-
         {error && <div className={styles.errorBox}>{error}</div>}
       </Card>
     </div>

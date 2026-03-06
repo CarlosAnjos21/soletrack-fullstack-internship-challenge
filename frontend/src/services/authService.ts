@@ -20,16 +20,18 @@ interface LoginResponse {
 
 export const AuthService = {
   async login(payload: LoginPayload): Promise<LoginResponse> {
-    const response = await api.post("/api/auth/login", payload);
+    const response = await api.post("/auth/login", payload);
+
+    const { token, user } = response.data.data;
 
     return {
-      token: response.data.token,
-      user: response.data.user,
+      token,
+      user,
     };
   },
 
   async register(payload: RegisterPayload, token: string): Promise<void> {
-    await api.post("/api/auth/register", payload, {
+    await api.post("/auth/register", payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -40,11 +42,11 @@ export const AuthService = {
     id: string,
     payload: { name?: string; password?: string }
   ): Promise<User> {
-    const { data } = await api.put<User>(`/api/auth/${id}`, payload);
-    return data;
+    const { data } = await api.put(`/auth/${id}`, payload);
+    return data.data ?? data;
   },
 
   async deleteUser(id: string): Promise<void> {
-    await api.delete(`/api/auth/${id}`);
+    await api.delete(`/auth/${id}`);
   },
 };

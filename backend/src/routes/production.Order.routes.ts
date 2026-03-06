@@ -20,7 +20,7 @@ router.use(authMiddleware);
 
 /**
  * @swagger
- * /orders:
+ * api/orders:
  *   post:
  *     summary: Cria uma nova ordem de produção
  *     description: Apenas ADMIN ou OPERATOR podem criar ordens.
@@ -61,7 +61,7 @@ router.post("/", authorize("ADMIN", "OPERATOR"), catchAsync(controller.create.bi
 
 /**
  * @swagger
- * /orders:
+ * api/orders:
  *   get:
  *     summary: Lista todas as ordens de produção
  *     description: Qualquer usuário autenticado pode listar ordens. Aceita filtro opcional ?status=PLANNED|IN_PROGRESS|COMPLETED
@@ -76,7 +76,7 @@ router.get("/", catchAsync(controller.findAll.bind(controller)));
 
 /**
  * @swagger
- * /orders/{id}/status:
+ * api/orders/{id}/status:
  *   patch:
  *     summary: Atualiza o status de uma ordem
  *     tags: [Orders]
@@ -109,7 +109,7 @@ router.patch("/:id/status", authorize("ADMIN", "OPERATOR"), catchAsync(controlle
 
 /**
  * @swagger
- * /orders/{id}/produce:
+ * api/orders/{id}/produce:
  *   patch:
  *     summary: Atualiza a quantidade produzida de uma ordem
  *     tags: [Orders]

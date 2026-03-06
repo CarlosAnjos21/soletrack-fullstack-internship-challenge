@@ -4,6 +4,7 @@ import styles from "./Table.module.css";
 interface Column<T> {
   header: string;
   accessor: keyof T | "actions";
+  render?: (row: T) => React.ReactNode;
 }
 
 interface TableProps<T> {
@@ -20,21 +21,31 @@ function Table<T extends { [key: string]: any }>({
       <table className={styles.table}>
         <thead>
           <tr>
-            {columns.map((col) => (
-              <th key={String(col.accessor)}>{col.header}</th>
+            {columns.map((col, index) => (
+              <th key={index}>{col.header}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {data.map((row, i) => (
-            <tr key={i}>
-              {columns.map((col) => (
-                <td key={String(col.accessor)}>
-                  {row[col.accessor as keyof T]}
-                </td>
-              ))}
+          {data.length > 0 ? (
+            data.map((row, i) => (
+              <tr key={i}>
+                {columns.map((col, j) => (
+                  <td key={j}>
+                    {col.render
+                      ? col.render(row)
+                      : row[col.accessor as keyof T]}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length} className={styles.empty}>
+                Nenhum dado encontrado.
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

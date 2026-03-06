@@ -1,13 +1,28 @@
 :root {
-  --color-primary: #3b82f6;
-  --color-secondary: #6366f1;
-  --color-text: #1f2937;
-  --color-text-secondary: #6b7280;
-  --color-card-bg: #f9fafb;
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --bg-page: #f1f5f9;
+  --bg-card: #ffffff;
 
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 2rem;
+  --text-main: #0f172a;
+  --text-light: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --sidebar-bg: #1e293b;
+
+  --planned: #e2e8f0;
+  --in-progress: #fef9c3;
+  --completed: #dcfce7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: "Inter", sans-serif;
 }

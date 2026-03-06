@@ -1,67 +1,66 @@
+// src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
-import { ProductionOrder } from "../types/productionOrder";
 import { ProductionOrderService } from "../services/productionOrderService";
+import { ProductionOrder } from "../types/productionOrder"; 
 import Card from "../components/Card";
 import ProductionChart from "../components/ProductionChart";
-import { Toast } from "../components/Toast";
-import styles from "./Home.module.css"; // CSS Module
+import styles from "./Home.module.css";
 
 const Home: React.FC = () => {
   const [orders, setOrders] = useState<ProductionOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState({ message: "", type: "success" as "success" | "error" });
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const loadData = async () => {
       try {
         const data = await ProductionOrderService.findAll();
         setOrders(data);
-      } catch {
-        setToast({ message: "Erro ao buscar ordens", type: "error" });
+      } catch (err) {
+        console.error("Erro ao carregar dashboard", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrders();
+    loadData();
   }, []);
 
-  const stats = {
-    produced: orders.reduce((acc, o) => acc + o.quantity_produced, 0),
-    planned: orders.reduce((acc, o) => acc + o.quantity_planned, 0),
-    inProgress: orders.filter(o => o.status === "IN_PROGRESS").length,
-  };
+  const totalPlanned = orders.reduce((acc, curr) => acc + (curr.quantity_planned || 0), 0);
+  const totalProduced = orders.reduce((acc, curr) => acc + (curr.quantity_produced || 0), 0);
+  
+  const plannedOrdersCount = orders.filter(o => o.status === "PLANNED").length;
+
+  if (loading) return <div className={styles.loader}>Carregando indicadores...</div>;
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Dashboard de Produção</h1>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Painel de Produção</h1>
+      </header>
 
-      {loading ? (
-        <p style={{ color: "#8B949E" }}>Sincronizando dados da fábrica...</p>
-      ) : (
-        <>
-          <div className={styles.cardsGrid}>
-            <Card className={styles.statCard}>
-              <h3>Total Produzido</h3>
-              <p>{stats.produced}</p>
-            </Card>
-            <Card className={styles.statCard}>
-              <h3>Total Planejado</h3>
-              <p>{stats.planned}</p>
-            </Card>
-            <Card className={styles.statCard}>
-              <h3>Ordens Ativas</h3>
-              <p>{stats.inProgress}</p>
-            </Card>
-          </div>
+      <div className={styles.statsGrid}>
+        <Card 
+          title="Meta de Produção" 
+          value={totalPlanned.toLocaleString()} 
+          accentColor 
+        />
+        <Card 
+          title="Total Produzido" 
+          value={totalProduced.toLocaleString()} 
+          accentColor 
+        />
+        <Card 
+          title="Ordens Planejadas" 
+          value={plannedOrdersCount} 
+          accentColor 
+        />
+      </div>
 
-          <Card className={styles.chartSection}>
-            <h3>Produção por Modelo</h3>
-            <ProductionChart orders={orders} />
-          </Card>
-        </>
-      )}
-
-      {toast.message && <Toast message={toast.message} type={toast.type} />}
+      <div className={styles.mainContent}>
+        <Card className={styles.chartSection}>
+          <h3 className={styles.chartTitle}>Eficiência por Modelo</h3>
+          <ProductionChart orders={orders} />
+        </Card>
+      </div>
     </div>
   );
 };

@@ -2,25 +2,23 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthService } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
-
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Input from "../components/Input";
-
 import styles from "./Register.module.css";
 
-type Role = "ADMIN" | "OPERATOR";
+type UserRole = "ADMIN" | "OPERATOR";
 
 interface RegisterForm {
   name: string;
   email: string;
   password: string;
-  role: Role;
+  role: UserRole;
 }
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { token, user } = useAuth(); // 🔑 pega token e usuário do contexto
+  const { token } = useAuth();
 
   const [form, setForm] = useState<RegisterForm>({
     name: "",
@@ -30,31 +28,21 @@ const Register: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
-  const handleChange = (field: keyof RegisterForm, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const [status, setStatus] = useState({ msg: "", type: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
-    setError("");
-    setMessage("");
+    setStatus({ msg: "", type: "" });
 
     try {
-      // 🔐 só permite registrar se tiver token (usuário logado)
-      await AuthService.register(form, token!);
+      await AuthService.register(form, token || "");
+      setStatus({ msg: "Operador registrado com sucesso!", type: "success" });
 
-      setMessage("Registro concluído com sucesso!");
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 1200);
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Erro ao registrar usuário");
+      const errorMsg = err?.response?.data?.message || "Erro ao registrar.";
+      setStatus({ msg: errorMsg, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -62,56 +50,61 @@ const Register: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={styles.formWrapper}>
-        <Card className={styles.card}>
-          <h1 className={styles.title}>Criar Conta</h1>
+      <Card className={styles.card}>
+        <h1 className={styles.title}>Novo Acesso</h1>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <Input
+            label="Nome Completo"
+            value={form.name}
+            onChange={(v) => setForm({ ...form, name: v })}
+            required
+          />
+          <Input
+            label="E-mail"
+            type="email"
+            value={form.email}
+            onChange={(v) => setForm({ ...form, email: v })}
+            required
+          />
+          <Input
+            label="Senha"
+            type="password"
+            value={form.password}
+            onChange={(v) => setForm({ ...form, password: v })}
+            required
+          />
 
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <Input
-              placeholder="Nome Completo"
-              value={form.name}
-              onChange={(v) => handleChange("name", v)}
-              required
-            />
-
-            <Input
-              placeholder="E-mail"
-              type="email"
-              value={form.email}
-              onChange={(v) => handleChange("email", v)}
-              required
-            />
-
-            <Input
-              placeholder="Senha"
-              type="password"
-              value={form.password}
-              onChange={(v) => handleChange("password", v)}
-              required
-            />
-
+          <div className={styles.selectGroup}>
+            <label className={styles.label}>Nível de Acesso</label>
             <select
               className={styles.select}
               value={form.role}
-              onChange={(e) => handleChange("role", e.target.value as Role)}
+              onChange={(e) =>
+                setForm({ ...form, role: e.target.value as UserRole })
+              }
             >
-              <option value="OPERATOR">Operador</option>
+              <option value="OPERATOR">Operador de Linha</option>
               <option value="ADMIN">Administrador</option>
             </select>
+          </div>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Confirmar Cadastro"}
-            </Button>
-          </form>
+          <Button type="submit" disabled={loading} className={styles.submitBtn}>
+            {loading ? "Processando..." : "Finalizar Cadastro"}
+          </Button>
+        </form>
 
-          <p className={styles.footerText}>
-            Já tem conta? <Link to="/login">Faça login</Link>
-          </p>
+        <p className={styles.footer}>
+          Já possui conta? <Link to="/login">Voltar ao login</Link>
+        </p>
 
-          {message && <div className={styles.successLabel}>{message}</div>}
-          {error && <div className={styles.errorBox}>{error}</div>}
-        </Card>
-      </div>
+        {status.msg && (
+          <div
+            className={`${styles.statusMsg} ${status.type === "error" ? styles.error : styles.success}`}
+          >
+            {status.msg}
+          </div>
+        )}
+      </Card>
     </div>
   );
 };

@@ -14,25 +14,24 @@ import PublicRoutes from "./PublicRoutes";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* 🔥 Ao entrar no site */}
-      <Route path="/" element={<Navigate to="/register" replace />} />
-
-      {/* 🔓 Rotas públicas */}
+      {/* 🔓 Rotas Públicas (Sem Sidebar) */}
       <Route element={<PublicRoutes />}>
-        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* 🔐 Rotas privadas */}
+      {/* 🔐 Rotas Privadas (Com Sidebar Automática) */}
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<ProductionOrders />} />
         <Route path="/models" element={<ShoeModels />} />
+        {/* Redireciona a raiz "/" para o dashboard "/home" se logado */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
       </Route>
 
-      {/* ❌ Qualquer rota inválida */}
-      <Route path="*" element={<Navigate to="/register" replace />} />
+      {/* ❌ Fallback: Se não estiver logado, vai pro Login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
