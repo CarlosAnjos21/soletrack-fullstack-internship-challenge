@@ -23,12 +23,17 @@ export function setupSwagger(app: Application) {
             type: "http",
             scheme: "bearer",
             bearerFormat: "JWT",
+            description: "Insira o token JWT no formato: Bearer {token}",
           },
         },
       },
-      security: [{ bearerAuth: [] }],
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
     },
-    apis: [path.join(__dirname, "./routes/*.ts")],
+    apis: [path.join(__dirname, "./routes/*.{ts,js}")],
   };
 
   const specs = swaggerJsdoc(options);
