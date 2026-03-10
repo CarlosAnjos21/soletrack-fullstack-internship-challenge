@@ -17,7 +17,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Carrega usuário/token do localStorage ao iniciar
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUserState(null);
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
@@ -34,27 +40,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setLoading(false);
+
+    const handleAutoLogout = () => logout();
+    window.addEventListener("auth:logout", handleAutoLogout);
+
+    return () => {
+      window.removeEventListener("auth:logout", handleAutoLogout);
+    };
   }, []);
 
-  // 🔐 Login
   const login = (token: string, userData: User) => {
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
-
     setToken(token);
     setUserState(userData);
   };
 
-  // 🚪 Logout
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    setToken(null);
-    setUserState(null);
-  };
-
-  // 📝 Atualiza apenas usuário
   const setUser = (updatedUser: User) => {
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setUserState(updatedUser);

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 import { Role } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 export interface AuthenticatedUser {
   id: string;
@@ -11,9 +12,6 @@ export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;
 }
 
-/**
- * Middleware de autenticação JWT
- */
 export function authMiddleware(
   req: AuthenticatedRequest,
   res: Response,
@@ -39,6 +37,11 @@ export function authMiddleware(
       `[AuthMiddleware] Token inválido. Path: ${req.path}, IP: ${req.ip}`,
       err
     );
+
+    if (err instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ status: "error", message: "Token expirado" });
+    }
+
     return res.status(401).json({ status: "error", message: "Token inválido" });
   }
 }
