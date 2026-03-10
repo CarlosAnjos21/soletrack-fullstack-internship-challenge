@@ -1,3 +1,4 @@
+// src/pages/Register.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthService } from "../services/authService";
@@ -34,11 +35,9 @@ const Register: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setStatus({ msg: "", type: "" });
-
     try {
       await AuthService.register(form, token || "");
       setStatus({ msg: "Operador registrado com sucesso!", type: "success" });
-
       setTimeout(() => navigate("/login"), 1500);
     } catch (err: any) {
       const errorMsg = err?.response?.data?.message || "Erro ao registrar.";
@@ -48,63 +47,121 @@ const Register: React.FC = () => {
     }
   };
 
+  const now = new Date();
+  const dateLabel = now.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <div className={styles.pageWrapper}>
-      <Card className={styles.card}>
-        <h1 className={styles.title}>Novo Acesso</h1>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <Input
-            label="Nome Completo"
-            value={form.name}
-            onChange={(v) => setForm({ ...form, name: v })}
-            required
-          />
-          <Input
-            label="E-mail"
-            type="email"
-            value={form.email}
-            onChange={(v) => setForm({ ...form, email: v })}
-            required
-          />
-          <Input
-            label="Senha"
-            type="password"
-            value={form.password}
-            onChange={(v) => setForm({ ...form, password: v })}
-            required
-          />
+      <main className={styles.main}>
 
-          <div className={styles.selectGroup}>
-            <label className={styles.label}>Nível de Acesso</label>
-            <select
-              className={styles.select}
-              value={form.role}
-              onChange={(e) =>
-                setForm({ ...form, role: e.target.value as UserRole })
-              }
-            >
-              <option value="OPERATOR">Operador de Linha</option>
-              <option value="ADMIN">Administrador</option>
-            </select>
-          </div>
+        {/* Cabeçalho */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>Novo Acesso</h1>
+          <span className={styles.date}>
+            {dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1)}
+          </span>
+        </div>
 
-          <Button type="submit" disabled={loading} className={styles.submitBtn}>
-            {loading ? "Processando..." : "Finalizar Cadastro"}
-          </Button>
-        </form>
+        {/* Card */}
+        <Card className={styles.formCard}>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.fields}>
 
-        <p className={styles.footer}>
-          Já possui conta? <Link to="/login">Voltar ao login</Link>
-        </p>
+              {/* Nome */}
+              <Input
+                label="Nome Completo"
+                value={form.name}
+                onChange={(v) => setForm({ ...form, name: v })}
+                required
+              />
 
-        {status.msg && (
-          <div
-            className={`${styles.statusMsg} ${status.type === "error" ? styles.error : styles.success}`}
-          >
-            {status.msg}
-          </div>
-        )}
-      </Card>
+              {/* E-mail */}
+              <Input
+                label="E-mail"
+                type="email"
+                value={form.email}
+                onChange={(v) => setForm({ ...form, email: v })}
+                required
+              />
+
+              {/* Senha */}
+              <Input
+                label="Senha"
+                type="password"
+                value={form.password}
+                onChange={(v) => setForm({ ...form, password: v })}
+                required
+              />
+
+              {/* Nível de Acesso */}
+              <div>
+                <label className={styles.fieldLabel}>Nível de Acesso</label>
+                <div className={styles.roleToggle}>
+                  {(
+                    [
+                      ["OPERATOR", "Operador de Linha"],
+                      ["ADMIN", "Administrador"],
+                    ] as [UserRole, string][]
+                  ).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`${styles.roleOpt} ${
+                        form.role === value ? styles.roleActive : ""
+                      }`}
+                      onClick={() => setForm({ ...form, role: value })}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Status */}
+            {status.msg && (
+              <div
+                className={`${styles.statusMsg} ${
+                  status.type === "error" ? styles.error : styles.success
+                }`}
+              >
+                {status.type === "success" ? "✓" : "⚠"} {status.msg}
+              </div>
+            )}
+
+            {/* Botões */}
+            <div className={styles.actions}>
+              <Button
+                type="submit"
+                disabled={loading}
+                className={styles.submitBtn}
+              >
+                {loading ? "⏳ Processando..." : "✓ Finalizar Cadastro"}
+              </Button>
+              <Button
+                type="button"
+                className={styles.clearBtn}
+                onClick={() =>
+                  setForm({ name: "", email: "", password: "", role: "OPERATOR" })
+                }
+              >
+                Limpar
+              </Button>
+            </div>
+          </form>
+
+          <p className={styles.footer}>
+            Já possui conta? <Link to="/login">Voltar ao login</Link>
+          </p>
+        </Card>
+
+      </main>
     </div>
   );
 };

@@ -36,11 +36,18 @@ const Login: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
+      {/* Logo / Marca */}
+      <div className={styles.brand}>
+        <div className={styles.brandIcon}>⚙️</div>
+        <span className={styles.brandName}>Footwear Production Manager</span>
+      </div>
+
       <Card className={styles.loginCard}>
         <div className={styles.header}>
-          <h1>Footwear ERP</h1>
-          <p>Acesse o painel de produção</p>
+          <h2 className={styles.title}>Bem-vindo de volta</h2>
+          <p className={styles.subtitle}>Acesse o painel de controle de produção</p>
         </div>
+
         <form className={styles.form} onSubmit={handleSubmit}>
           <Input
             label="E-mail"
@@ -56,14 +63,18 @@ const Login: React.FC = () => {
             onChange={handleChange("password")}
             required
           />
+
+          {error && <div className={styles.errorBox}>⚠ {error}</div>}
+
           <Button type="submit" disabled={loading} className={styles.submitBtn}>
             {loading ? "Verificando..." : "Entrar no Sistema"}
           </Button>
         </form>
+
         <p className={styles.footerText}>
-          Ainda não tem acesso? <Link to="/register">Solicitar registro</Link>
+          Ainda não tem acesso?{" "}
+          <Link to="/register">Solicitar registro</Link>
         </p>
-        {error && <div className={styles.errorBox}>{error}</div>}
       </Card>
     </div>
   );
