@@ -10,6 +10,31 @@ export interface CreateProductionDTO {
 }
 
 export class ProductionOrderService {
+
+  /**
+   * Gera ID sequencial no formato OP-YYYY-NNN
+   */
+  private async generateId(): Promise<string> {
+    const year = new Date().getFullYear();
+    const prefix = `OP-${year}-`;
+
+    // Busca todas as ordens do ano atual
+    const orders = await prisma.productionOrder.findMany({
+      where: { id: { startsWith: prefix } },
+      orderBy: { id: "desc" },
+      take: 1,
+    });
+
+    if (orders.length === 0) {
+      return `${prefix}001`;
+    }
+
+    // Extrai o número sequencial do último ID e incrementa
+    const lastSeq = parseInt(orders[0].id.split("-")[2], 10);
+    const nextSeq = String(lastSeq + 1).padStart(3, "0");
+    return `${prefix}${nextSeq}`;
+  }
+
   /**
    * Cria uma nova ordem de produção
    */
@@ -21,8 +46,10 @@ export class ProductionOrderService {
     const modelExists = await prisma.shoeModel.findUnique({ where: { id: data.model_id } });
     if (!modelExists) throw new AppError("Modelo de calçado não encontrado", 404);
 
+    const id = await this.generateId();
+
     return prisma.productionOrder.create({
-      data: { ...data, quantity_produced: 0, status: Status.PLANNED },
+      data: { id, ...data, quantity_produced: 0, status: Status.PLANNED },
     });
   }
 

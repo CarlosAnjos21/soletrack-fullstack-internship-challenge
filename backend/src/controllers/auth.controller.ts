@@ -1,3 +1,4 @@
+// src/controllers/auth.controller.ts
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth.service";
 import { z } from "zod";
@@ -44,14 +45,9 @@ export class AuthController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      // Valida o id que vem nos params
-      const paramsSchema = z.object({
-        id: z.string().uuid(),
-      });
+      const paramsSchema = z.object({ id: z.string().uuid() });
       const { id } = paramsSchema.parse(req.params);
-
       await authService.deleteUser(id);
-
       return res.status(204).send();
     } catch (err) {
       next(err);

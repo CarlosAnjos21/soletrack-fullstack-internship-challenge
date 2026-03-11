@@ -1,5 +1,7 @@
+// src/controllers/shoeModel.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { ShoeModelService, CreateShoeModelDTO } from "../services/shoeModel.service";
+import { ShoeModelService } from "../services/shoeModel.service";
+import type { CreateShoeModelDTO } from "../services/shoeModel.service";
 import { z } from "zod";
 
 const service = new ShoeModelService();
@@ -10,14 +12,14 @@ const createSchema = z.object({
   base_cost: z.number().positive(),
 });
 
-const idSchema = z.object({ id: z.string().uuid() });
+// id agora é SAP-CATEGORY-NNN, não mais UUID
+const idSchema = z.object({ id: z.string().min(1) });
 
 export class ShoeModelController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = createSchema.parse(req.body);
       const shoe = await service.create(data);
-
       return res.status(201).json({ status: "success", data: shoe });
     } catch (error) {
       next(error);
@@ -38,7 +40,6 @@ export class ShoeModelController {
       const { id } = idSchema.parse(req.params);
       const updateSchema = createSchema.partial();
       const data: Partial<CreateShoeModelDTO> = updateSchema.parse(req.body);
-
       const updated = await service.update(id, data);
       return res.json({ status: "success", message: "Modelo atualizado", data: updated });
     } catch (error) {

@@ -9,6 +9,38 @@ export interface CreateShoeModelDTO {
 }
 
 export class ShoeModelService {
+
+  /**
+   * Gera ID sequencial no formato SAP-CATEGORY-NNN
+   * Ex: SAP-SPORT-001, SAP-CASUAL-003, SAP-SOCIAL-012
+   */
+  private async generateId(category: string): Promise<string> {
+    const categorySlug = category
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .toUpperCase()
+      .replace(/\s+/g, "-")
+      .slice(0, 10); // limita tamanho
+
+    const prefix = `SAP-${categorySlug}-`;
+
+    const models = await prisma.shoeModel.findMany({
+      where: { id: { startsWith: prefix } },
+      orderBy: { id: "desc" },
+      take: 1,
+    });
+
+    if (models.length === 0) {
+      return `${prefix}001`;
+    }
+
+    // Extrai o número sequencial do último ID e incrementa
+    const parts = models[0].id.split("-");
+    const lastSeq = parseInt(parts[parts.length - 1], 10);
+    const nextSeq = String(lastSeq + 1).padStart(3, "0");
+    return `${prefix}${nextSeq}`;
+  }
+
   /**
    * Cria um novo modelo de sapato
    */
@@ -17,7 +49,9 @@ export class ShoeModelService {
       throw new AppError("Todos os campos são obrigatórios", 400);
     }
 
-    return prisma.shoeModel.create({ data });
+    const id = await this.generateId(data.category);
+
+    return prisma.shoeModel.create({ data: { id, ...data } });
   }
 
   /**
