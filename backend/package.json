@@ -4,9 +4,10 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "dev": "npm run migrate && npm run seed && ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
-    "migrate": "prisma migrate deploy"
+    "migrate": "prisma migrate deploy",
+    "seed": "ts-node src/seed.ts"
   },
   "keywords": [],
   "author": "",
