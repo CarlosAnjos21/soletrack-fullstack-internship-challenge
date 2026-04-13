@@ -23,8 +23,8 @@ const ProductionChart: React.FC<Props> = ({ orders }) => {
   }, []);
 
   return (
-    <div style={{ width: "100%", height: 300, paddingTop: "20px" }}>
-      <ResponsiveContainer width="100%" height="100%">
+    <div style={{ width: "100%", paddingTop: "20px" }}>
+      <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid
             strokeDasharray="3 3"
