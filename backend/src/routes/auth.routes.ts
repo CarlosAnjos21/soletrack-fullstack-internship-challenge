@@ -88,7 +88,12 @@ router.post("/login", catchAsync(controller.login.bind(controller)));
  *       403:
  *         description: Sem permissão (não ADMIN)
  */
-router.post("/register", authMiddleware, authorize("ADMIN"), catchAsync(controller.register.bind(controller)));
+router.post(
+  "/register",
+  authMiddleware,
+  authorize("ADMIN"),
+  catchAsync(controller.register.bind(controller)),
+);
 
 /**
  * @swagger
@@ -114,6 +119,89 @@ router.post("/register", authMiddleware, authorize("ADMIN"), catchAsync(controll
  *       403:
  *         description: Sem permissão
  */
-router.delete("/:id", authMiddleware, authorize("ADMIN"), catchAsync(controller.delete.bind(controller)));
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorize("ADMIN"),
+  catchAsync(controller.delete.bind(controller)),
+);
+
+/**
+ * @swagger
+ * /api/auth/{id}:
+ *   put:
+ *     summary: Atualiza perfil do usuário
+ *     description: Atualiza nome, e-mail e/ou senha do usuário autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do usuário a ser atualizado
+ *         example: dac36295-53f1-4e62-94ac-da73247cdb00
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             minProperties: 1
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 2
+ *                 example: Carlos Silva
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: carlos@email.com
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *                 example: "novaSenha123"
+ *     responses:
+ *       200:
+ *         description: Perfil atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                       enum: [ADMIN, OPERATOR]
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Dados inválidos ou e-mail já em uso
+ *       401:
+ *         description: Token ausente ou inválido
+ *       404:
+ *         description: Usuário não encontrado
+ */
+router.put(
+  "/:id",
+  authMiddleware,
+  catchAsync(controller.updateProfile.bind(controller)),
+);
 
 export default router;
