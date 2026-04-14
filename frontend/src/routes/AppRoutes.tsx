@@ -7,6 +7,7 @@ import Register from "../pages/Register";
 import Profile from "../pages/Profile";
 import ProductionOrders from "../pages/ProductionOrders";
 import ShoeModels from "../pages/ShoeModels";
+import RegisterOperator from "../pages/RegisterOperator";
 
 import PrivateRoutes from "./PrivateRoutes";
 import PublicRoutes from "./PublicRoutes";
@@ -26,11 +27,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<ProductionOrders />} />
         <Route path="/models" element={<ShoeModels />} />
-        {/* Redireciona a raiz "/" para o dashboard "/home" se logado */}
+        <Route path="/operators" element={<RegisterOperator />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Route>
 
-      {/* ❌ Fallback: Se não estiver logado, vai pro Login */}
+      {/* ❌ Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

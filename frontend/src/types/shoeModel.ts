@@ -4,4 +4,6 @@ export interface ShoeModel {
   category: string;
   base_cost: number;
   created_at: string;
+
+  production_time_minutes: number;
 }

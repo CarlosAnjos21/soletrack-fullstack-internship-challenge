@@ -1,4 +1,3 @@
-// src/pages/ShoeModels.tsx
 import React, { useState, useEffect } from "react";
 import { ShoeModelService } from "../services/shoeModelService";
 import { ShoeModel } from "../types/shoeModel";
@@ -11,12 +10,12 @@ import styles from "./ShoeModels.module.css";
 const ShoeModels: React.FC = () => {
   const [models, setModels] = useState<ShoeModel[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Estado para o formulário
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
-    base_cost: 0
+    base_cost: 0,
+    production_time_minutes: 0,
   });
 
   const fetchModels = async () => {
@@ -31,18 +30,29 @@ const ShoeModels: React.FC = () => {
     }
   };
 
-  useEffect(() => { fetchModels(); }, []);
+  useEffect(() => {
+    fetchModels();
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.category) return;
-
     try {
       await ShoeModelService.create(formData);
-      setFormData({ name: "", category: "", base_cost: 0 }); // Limpa o form
-      fetchModels(); // Atualiza a tabela
+      setFormData({ name: "", category: "", base_cost: 0, production_time_minutes: 0 });
+      fetchModels();
     } catch (err) {
       alert("Erro ao salvar modelo. Verifique se você é ADMIN.");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Tem certeza que deseja excluir este modelo?")) return;
+    try {
+      await ShoeModelService.delete(id);
+      setModels((prev) => prev.filter((m) => m.id !== id));
+    } catch (err) {
+      alert("Erro ao excluir modelo.");
     }
   };
 
@@ -52,47 +62,62 @@ const ShoeModels: React.FC = () => {
 
       <Card className={styles.formCard} accentColor>
         <form onSubmit={handleSave} className={styles.row}>
-          <Input 
-            label="Nome" 
-            value={formData.name} 
-            onChange={(v) => setFormData({...formData, name: v})} 
-            required 
+          <Input
+            label="Nome"
+            value={formData.name}
+            onChange={(v) => setFormData({ ...formData, name: v })}
+            required
           />
-          <Input 
-            label="Categoria" 
-            value={formData.category} 
-            onChange={(v) => setFormData({...formData, category: v})} 
-            required 
+          <Input
+            label="Categoria"
+            value={formData.category}
+            onChange={(v) => setFormData({ ...formData, category: v })}
+            required
           />
-          <Input 
-            label="Custo Base (R$)" 
+          <Input
+            label="Custo Base (R$)"
             type="number"
-            value={formData.base_cost} 
-            onChange={(v) => setFormData({...formData, base_cost: Number(v)})} 
-            required 
+            value={formData.base_cost}
+            onChange={(v) => setFormData({ ...formData, base_cost: Number(v) })}
+            required
           />
-          <Button type="submit" className={styles.btn}>Salvar Modelo</Button>
+          <Input
+            label="Tempo de produção (min por par)"
+            type="number"
+            value={formData.production_time_minutes}
+            onChange={(v) => setFormData({ ...formData, production_time_minutes: Number(v) })}
+            required
+          />
+          <Button type="submit" className={styles.btn}>
+            Salvar Modelo
+          </Button>
         </form>
       </Card>
 
-      <Table 
+      <Table
         columns={[
           { header: "Nome", accessor: "name" },
           { header: "Categoria", accessor: "category" },
-          { 
-            header: "Custo Base", 
+          {
+            header: "Custo Base",
             accessor: "base_cost",
-            render: (row) => `R$ ${row.base_cost.toFixed(2)}`
+            render: (row: ShoeModel) => `R$ ${row.base_cost.toFixed(2)}`,
+          },
+          {
+            header: "Tempo (min)",
+            accessor: "production_time_minutes",
           },
           {
             header: "Ações",
             accessor: "id",
-            render: (row) => (
-              <Button variant="danger" size="sm" onClick={() => {}}>Excluir</Button>
-            )
-          }
-        ]} 
-        data={models} 
+            render: (row: ShoeModel) => (
+              <Button variant="danger" size="sm" onClick={() => handleDelete(row.id)}>
+                Excluir
+              </Button>
+            ),
+          },
+        ]}
+        data={models}
       />
     </div>
   );

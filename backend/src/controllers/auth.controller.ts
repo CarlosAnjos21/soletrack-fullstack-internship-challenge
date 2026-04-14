@@ -18,11 +18,17 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-const updateProfileSchema = z.object({
-  name: z.string().min(2).optional(),
-  email: z.string().email().optional(),
-  password: z.string().min(6).optional(),
-});
+const updateProfileSchema = z
+  .object({
+    name: z.string().min(2).optional(),
+    email: z.string().email().optional(), // <-- trocar por isso:
+    password: z.string().min(6).optional(),
+  })
+  .partial()
+  .refine(
+    (data) => Object.values(data).some((v) => v !== undefined && v !== ""),
+    { message: "Nenhum campo para atualizar." },
+  );
 
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {

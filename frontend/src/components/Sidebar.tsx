@@ -2,16 +2,16 @@ import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import styles from "./Sidebar.module.css";
-
+ 
 const Sidebar: React.FC = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-
+ 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
+ 
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logoSection}>
@@ -20,7 +20,7 @@ const Sidebar: React.FC = () => {
           Footwear<span>ERP</span>
         </h2>
       </div>
-
+ 
       <nav className={styles.nav}>
         <p className={styles.navLabel}>Principal</p>
         <NavLink
@@ -31,7 +31,7 @@ const Sidebar: React.FC = () => {
         >
           <span className={styles.icon}>📊</span> Dashboard
         </NavLink>
-
+ 
         <NavLink
           to="/orders"
           className={({ isActive }) =>
@@ -40,7 +40,7 @@ const Sidebar: React.FC = () => {
         >
           <span className={styles.icon}>📦</span> Ordens de Produção
         </NavLink>
-
+ 
         <NavLink
           to="/models"
           className={({ isActive }) =>
@@ -49,7 +49,7 @@ const Sidebar: React.FC = () => {
         >
           <span className={styles.icon}>👟</span> Modelos de Calçados
         </NavLink>
-
+ 
         <p className={styles.navLabel}>Configurações</p>
         <NavLink
           to="/profile"
@@ -59,10 +59,10 @@ const Sidebar: React.FC = () => {
         >
           <span className={styles.icon}>👤</span> Meu Perfil
         </NavLink>
-
+ 
         {user?.role === "ADMIN" && (
           <NavLink
-            to="/register"
+            to="/operators"
             className={({ isActive }) =>
               isActive ? `${styles.link} ${styles.active}` : styles.link
             }
@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
           </NavLink>
         )}
       </nav>
-
+ 
       <div className={styles.footer}>
         <div className={styles.userInfo}>
           <p className={styles.userName}>{user?.name || "Usuário"}</p>
@@ -88,5 +88,5 @@ const Sidebar: React.FC = () => {
     </aside>
   );
 };
-
+ 
 export default Sidebar;
