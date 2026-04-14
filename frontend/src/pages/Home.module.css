@@ -32,7 +32,7 @@
   text-transform: capitalize;
 }
 
-/* ── Grid de stats — 4 colunas na linha 1, 3 na linha 2 ── */
+/* ── Grids ── */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -47,6 +47,71 @@
   margin-bottom: 2.5rem;
 }
 
+/* ── Stat Card ── */
+.statCard {
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow);
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.statIcon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.statUnit {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+/* ── Cores dos cards ── */
+.blue   { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+.orange { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+.green  { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+.purple { background: linear-gradient(135deg, #a855f7, #9333ea); color: white; }
+.teal   { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; }
+.indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+.gray   { background: linear-gradient(135deg, #64748b, #475569); color: white; }
+
 /* ── Gráfico ── */
 .mainContent {
   display: grid;
@@ -56,7 +121,6 @@
 
 .chartSection {
   padding: 1.5rem;
-  background: white;
 }
 
 .chartTitle {

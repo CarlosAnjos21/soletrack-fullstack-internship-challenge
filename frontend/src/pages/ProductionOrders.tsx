@@ -107,15 +107,6 @@ const ProductionOrders: React.FC = () => {
   return (
     <div className={styles.container}>
 
-      {/* 📊 DASHBOARD */}
-      <div className={styles.dashboard}>
-        <div>Produzido Hoje: {metrics.completedToday}</div>
-        <div>Total Produzido: {metrics.totalProduced}</div>
-        <div>Em Produção: {metrics.inProduction}</div>
-        <div>Produção por Hora: {metrics.productionPerHour.toFixed(2)}</div>
-        <div>Tempo em Esteira: {metrics.inProductionHours.toFixed(1)}h</div>
-      </div>
-
       {/* HEADER */}
       <div className={styles.header}>
         <h1>Ordens de Produção</h1>
