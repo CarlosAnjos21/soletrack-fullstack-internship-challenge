@@ -1,0 +1,34 @@
+.blue {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  color: white;
+  border-left: 4px solid #93c5fd;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.green {
+  background: linear-gradient(135deg, #15803d, #22c55e);
+  color: white;
+  border-left: 4px solid #86efac;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+}
+
+.orange {
+  background: linear-gradient(135deg, #c2410c, #f97316);
+  color: white;
+  border-left: 4px solid #fdba74;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+}
+
+.teal {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: white;
+  border-left: 4px solid #5eead4;
+  box-shadow: 0 4px 14px rgba(20, 184, 166, 0.35);
+}
+
+.indigo {
+  background: linear-gradient(135deg, #4338ca, #6366f1);
+  color: white;
+  border-left: 4px solid #a5b4fc;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}

@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role
+  created_at DateTime @default(now())
+}
+
+model ShoeModel {
+  id                String            @id // ex: SAP-SPORT-001
+  name              String
+  category          String
+  base_cost         Float
+  created_at        DateTime          @default(now())
+  production_orders ProductionOrder[]
+}
+
+model ProductionOrder {
+  id                String     @id // ex: OP-2025-001
+  model_id          String
+  size              Int
+  quantity_planned  Int
+  quantity_produced Int        @default(0)
+  status            Status     @default(PLANNED)
+  start_date        DateTime?
+  end_date          DateTime?
+  created_at        DateTime   @default(now())
+  model             ShoeModel  @relation(fields: [model_id], references: [id])
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
+enum Status {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}

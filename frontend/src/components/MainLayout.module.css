@@ -1,0 +1,24 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-page); /* #f8fafc */
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+.wrapper {
+  display: flex; /* Alinha Sidebar e Conteúdo lado a lado */
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1; /* Faz o conteúdo ocupar o resto da tela */
+  background-color: var(--bg-page);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0; /* O padding será dado pelas páginas individuais */
+}
