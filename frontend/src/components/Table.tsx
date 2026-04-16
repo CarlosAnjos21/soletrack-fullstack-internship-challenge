@@ -3,7 +3,7 @@ import styles from "./Table.module.css";
 
 interface Column<T> {
   header: string;
-  accessor: keyof T | "actions";
+  accessor?: keyof T;
   render?: (row: T) => React.ReactNode;
 }
 
@@ -12,7 +12,7 @@ interface TableProps<T> {
   data: T[];
 }
 
-function Table<T extends { [key: string]: any }>({
+function Table<T extends Record<string, any>>({
   columns,
   data,
 }: TableProps<T>) {
@@ -26,6 +26,7 @@ function Table<T extends { [key: string]: any }>({
             ))}
           </tr>
         </thead>
+
         <tbody>
           {data.length > 0 ? (
             data.map((row, i) => (
@@ -34,7 +35,9 @@ function Table<T extends { [key: string]: any }>({
                   <td key={j}>
                     {col.render
                       ? col.render(row)
-                      : row[col.accessor as keyof T]}
+                      : col.accessor
+                      ? String(row[col.accessor])
+                      : null}
                   </td>
                 ))}
               </tr>
