@@ -14,16 +14,16 @@ function serializeUser(user: {
   created_at: Date;
 }) {
   return {
-    id:        user.id,
-    name:      user.name,
-    email:     user.email,
-    role:      user.role,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
     createdAt: user.created_at,
   };
 }
 
 export interface LoginResponse {
-  user: { id: string; name: string; role: Role };
+  user: { id: string; name: string; email: string; createdAt: Date; role: Role };
   token: string;
 }
 
@@ -39,7 +39,13 @@ export class AuthService {
 
     const created = await prisma.user.create({
       data: { name, email, password: hashedPassword, role },
-      select: { id: true, name: true, email: true, role: true, created_at: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        created_at: true,
+      },
     });
 
     return serializeUser(created);
@@ -57,7 +63,16 @@ export class AuthService {
 
     const token = generateToken({ id: user.id, role: user.role });
 
-    return { user: { id: user.id, name: user.name, role: user.role }, token };
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.created_at,
+        role: user.role,
+      },
+      token,
+    };
   }
 
   async deleteUser(id: string) {
@@ -67,24 +82,36 @@ export class AuthService {
     return prisma.user.delete({ where: { id } });
   }
 
-  async updateProfile(id: string, data: { name?: string; email?: string; password?: string }) {
+  async updateProfile(
+    id: string,
+    data: { name?: string; email?: string; password?: string },
+  ) {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError("Usuário não encontrado", 404);
 
     if (data.email && data.email !== user.email) {
-      const emailInUse = await prisma.user.findUnique({ where: { email: data.email } });
+      const emailInUse = await prisma.user.findUnique({
+        where: { email: data.email },
+      });
       if (emailInUse) throw new AppError("Este e-mail já está em uso", 400);
     }
 
     const updateData: { name?: string; email?: string; password?: string } = {};
-    if (data.name)     updateData.name     = data.name;
-    if (data.email)    updateData.email    = data.email;
-    if (data.password) updateData.password = await bcrypt.hash(data.password, 10);
+    if (data.name) updateData.name = data.name;
+    if (data.email) updateData.email = data.email;
+    if (data.password)
+      updateData.password = await bcrypt.hash(data.password, 10);
 
     const updated = await prisma.user.update({
       where: { id },
       data: updateData,
-      select: { id: true, name: true, email: true, role: true, created_at: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        created_at: true,
+      },
     });
 
     return serializeUser(updated);
