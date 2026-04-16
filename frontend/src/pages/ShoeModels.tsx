@@ -39,7 +39,12 @@ const ShoeModels: React.FC = () => {
     if (!formData.name || !formData.category) return;
     try {
       await ShoeModelService.create(formData);
-      setFormData({ name: "", category: "", base_cost: 0, production_time_minutes: 0 });
+      setFormData({
+        name: "",
+        category: "",
+        base_cost: 0,
+        production_time_minutes: 0,
+      });
       fetchModels();
     } catch (err) {
       alert("Erro ao salvar modelo. Verifique se você é ADMIN.");
@@ -55,6 +60,15 @@ const ShoeModels: React.FC = () => {
       alert("Erro ao excluir modelo.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>Modelos de Calçados</h1>
+        <p>Carregando modelos...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -85,7 +99,9 @@ const ShoeModels: React.FC = () => {
             label="Tempo de produção (min por par)"
             type="number"
             value={formData.production_time_minutes}
-            onChange={(v) => setFormData({ ...formData, production_time_minutes: Number(v) })}
+            onChange={(v) =>
+              setFormData({ ...formData, production_time_minutes: Number(v) })
+            }
             required
           />
           <Button type="submit" className={styles.btn}>
@@ -111,7 +127,11 @@ const ShoeModels: React.FC = () => {
             header: "Ações",
             accessor: "id",
             render: (row: ShoeModel) => (
-              <Button variant="danger" size="sm" onClick={() => handleDelete(row.id)}>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => handleDelete(row.id)}
+              >
                 Excluir
               </Button>
             ),

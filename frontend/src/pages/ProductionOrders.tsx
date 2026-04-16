@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { ProductionOrderService } from "../services/productionOrderService";
 import { ShoeModelService } from "../services/shoeModelService";
+
 import { ProductionOrder } from "../types/productionOrder";
 import { ShoeModel } from "../types/shoeModel";
-import { ProductionEngine } from "../core/productionEngine";
 
 import Table from "../components/Table";
 import Button from "../components/Button";
@@ -23,6 +23,7 @@ const initialForm = {
 const ProductionOrders: React.FC = () => {
   const [orders, setOrders] = useState<ProductionOrder[]>([]);
   const [models, setModels] = useState<ShoeModel[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -30,7 +31,6 @@ const ProductionOrders: React.FC = () => {
 
   const [form, setForm] = useState(initialForm);
 
-  // 📦 CARREGAR DADOS
   useEffect(() => {
     const load = async () => {
       try {
@@ -42,7 +42,7 @@ const ProductionOrders: React.FC = () => {
         setOrders(ordersData);
         setModels(modelsData);
       } catch (err) {
-        console.error("Erro ao carregar dados:", err);
+        console.error("Erro ao carregar dados", err);
       } finally {
         setLoading(false);
       }
@@ -51,36 +51,26 @@ const ProductionOrders: React.FC = () => {
     load();
   }, []);
 
-  // ⚙️ ENGINE (MÉTRICAS)
-  const engine = useMemo(() => {
-    return new ProductionEngine(orders, models);
-  }, [orders, models]);
-
-  const metrics = engine.getDashboard();
-
-  // 🟢 MODAL
-  const handleOpen = () => {
+  const openModal = () => {
     setForm(initialForm);
     setError("");
     setIsModalOpen(true);
   };
 
-  const handleClose = () => {
+  const closeModal = () => {
     setIsModalOpen(false);
     setError("");
   };
 
-  // ➕ CRIAR ORDEM
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.model_id) {
-      setError("Selecione um modelo.");
+      setError("Selecione um modelo");
       return;
     }
 
     setSubmitting(true);
-    setError("");
 
     try {
       const newOrder = await ProductionOrderService.create({
@@ -90,62 +80,51 @@ const ProductionOrders: React.FC = () => {
       });
 
       setOrders((prev) => [newOrder, ...prev]);
-      handleClose();
+      closeModal();
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Erro ao criar ordem.");
+      setError(err?.response?.data?.message || "Erro ao criar ordem");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // 🧠 MODEL NAME
-  const getModelName = (model_id: string) => {
-    const model = models.find((m) => m.id === model_id);
-    return model ? `${model.name} (${model.category})` : model_id;
+  const getModelName = (id: string) => {
+    const model = models.find((m) => m.id === id);
+    return model ? `${model.name} (${model.category})` : id;
   };
+
+  if (loading) return <p>Carregando...</p>;
 
   return (
     <div className={styles.container}>
-
-      {/* HEADER */}
       <div className={styles.header}>
         <h1>Ordens de Produção</h1>
-        <Button onClick={handleOpen}>+ Nova Ordem</Button>
+        <Button onClick={openModal}>Nova Ordem</Button>
       </div>
 
-      {/* TABLE */}
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        <Table
-          data={orders}
-          columns={[
-            { header: "ID", accessor: "id" },
-            {
-              header: "Modelo",
-              accessor: "model_id",
-              render: (row: ProductionOrder) => getModelName(row.model_id),
-            },
-            { header: "Tamanho", accessor: "size" },
-            { header: "Planejado", accessor: "quantity_planned" },
-            { header: "Produzido", accessor: "quantity_produced" },
-            { header: "Status", accessor: "status" },
-          ]}
-        />
-      )}
+      <Table
+        data={orders}
+        columns={[
+          { header: "ID", accessor: "id" },
+          {
+            header: "Modelo",
+            accessor: "model_id",
+            render: (row) => getModelName(row.model_id),
+          },
+          { header: "Tamanho", accessor: "size" },
+          { header: "Planejado", accessor: "quantity_planned" },
+          { header: "Produzido", accessor: "quantity_produced" },
+          { header: "Status", accessor: "status" },
+        ]}
+      />
 
-      {/* MODAL */}
-      <Modal isOpen={isModalOpen} onClose={handleClose} title="Nova Ordem">
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-
-          {/* MODELO */}
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="Nova Ordem">
+        <form onSubmit={handleCreate} className={styles.form}>
           <select
             value={form.model_id}
             onChange={(e) =>
               setForm({ ...form, model_id: e.target.value })
             }
-            required
           >
             <option value="">Selecione modelo</option>
             {models.map((m) => (
@@ -155,7 +134,6 @@ const ProductionOrders: React.FC = () => {
             ))}
           </select>
 
-          {/* TAMANHO */}
           <select
             value={form.size}
             onChange={(e) =>
@@ -169,10 +147,8 @@ const ProductionOrders: React.FC = () => {
             ))}
           </select>
 
-          {/* QUANTIDADE */}
           <input
             type="number"
-            min={1}
             value={form.quantity_planned}
             onChange={(e) =>
               setForm({
@@ -182,7 +158,6 @@ const ProductionOrders: React.FC = () => {
             }
           />
 
-          {/* DATA */}
           <input
             type="date"
             value={form.start_date}
@@ -196,10 +171,8 @@ const ProductionOrders: React.FC = () => {
           <Button type="submit" disabled={submitting}>
             {submitting ? "Criando..." : "Criar"}
           </Button>
-
         </form>
       </Modal>
-
     </div>
   );
 };

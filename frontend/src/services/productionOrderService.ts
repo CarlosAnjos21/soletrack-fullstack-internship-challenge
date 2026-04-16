@@ -1,4 +1,4 @@
-import { api } from "./api";
+import api from "./api";
 import { ProductionOrder, OrderStatus } from "../types/productionOrder";
 
 export const ProductionOrderService = {

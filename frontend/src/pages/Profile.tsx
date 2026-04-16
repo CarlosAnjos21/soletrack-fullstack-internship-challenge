@@ -25,6 +25,9 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     if (user) {
+
+      console.log("USER:", user);
+      
       setFormData((prev) => ({
         ...prev,
         name: user.name,

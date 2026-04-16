@@ -2,21 +2,29 @@
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import MainLayout from "../components/MainLayout"; // 🔥 IMPORTANTE
+import MainLayout from "../components/MainLayout";
 
-const PrivateRoutes: React.FC = () => {
+interface Props {
+  roles?: ("ADMIN" | "OPERATOR")[];
+}
+
+const PrivateRoutes: React.FC<Props> = ({ roles }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <div style={{ padding: "2rem" }}>Carregando sistema...</div>; 
+    return <div style={{ padding: "2rem" }}>Carregando sistema...</div>;
   }
 
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // 🔥 Aqui está a mudança: O MainLayout envolve o Outlet
+  // 🔥 Controle de roles
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/home" replace />;
+  }
+
   return (
     <MainLayout>
       <Outlet />

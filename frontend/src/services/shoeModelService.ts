@@ -1,4 +1,4 @@
-import { api } from "./api";
+import api from "./api";
 import { ShoeModel } from "../types/shoeModel";
 
 export const ShoeModelService = {

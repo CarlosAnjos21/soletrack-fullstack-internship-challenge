@@ -8,6 +8,7 @@ import Profile from "../pages/Profile";
 import ProductionOrders from "../pages/ProductionOrders";
 import ShoeModels from "../pages/ShoeModels";
 import RegisterOperator from "../pages/RegisterOperator";
+import Users from "../pages/Users";
 
 import PrivateRoutes from "./PrivateRoutes";
 import PublicRoutes from "./PublicRoutes";
@@ -15,24 +16,34 @@ import PublicRoutes from "./PublicRoutes";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* 🔓 Rotas Públicas (Sem Sidebar) */}
+
+      {/* 🔓 Públicas */}
       <Route element={<PublicRoutes />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* 🔐 Rotas Privadas (Com Sidebar Automática) */}
+      {/* 🔐 Todas autenticadas */}
       <Route element={<PrivateRoutes />}>
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/orders" element={<ProductionOrders />} />
-        <Route path="/models" element={<ShoeModels />} />
-        <Route path="/operators" element={<RegisterOperator />} />
-        <Route path="/" element={<Navigate to="/home" replace />} />
       </Route>
 
-      {/* ❌ Fallback */}
+      {/* 👑 ADMIN */}
+      <Route element={<PrivateRoutes roles={["ADMIN"]} />}>
+        <Route path="/operators" element={<RegisterOperator />} />
+        <Route path="/users" element={<Users />} />
+      </Route>
+
+      {/* 👷 OPERATOR + ADMIN */}
+      <Route element={<PrivateRoutes roles={["ADMIN", "OPERATOR"]} />}>
+        <Route path="/orders" element={<ProductionOrders />} />
+        <Route path="/models" element={<ShoeModels />} />
+      </Route>
+
+      <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
+
     </Routes>
   );
 };

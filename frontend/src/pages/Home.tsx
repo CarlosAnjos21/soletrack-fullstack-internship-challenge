@@ -1,5 +1,4 @@
-// src/pages/Home.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ProductionOrderService } from "../services/productionOrderService";
 import { ProductionOrder } from "../types/productionOrder";
 import Card from "../components/Card";
@@ -21,79 +20,112 @@ const Home: React.FC = () => {
         setLoading(false);
       }
     };
+
     loadData();
   }, []);
 
-  const today = new Date().toDateString();
+  // 📅 data de hoje (fixa por render)
+  const todayString = useMemo(() => {
+    return new Date().toDateString();
+  }, []);
 
-  // Stats exigidas pelo desafio
-  const totalProducedToday = orders
-    .filter((o) => new Date(o.created_at).toDateString() === today)
-    .reduce((acc, o) => acc + (o.quantity_produced || 0), 0);
+  // 📊 métricas centralizadas (melhor performance + leitura)
+  const metrics = useMemo(() => {
+    let producedToday = 0;
+    let inProgress = 0;
+    let completed = 0;
+    let planned = 0;
+    let totalProduced = 0;
+    let totalPlannedQty = 0;
 
-  const totalInProgress = orders.filter((o) => o.status === "IN_PROGRESS").length;
-  const totalCompleted  = orders.filter((o) => o.status === "COMPLETED").length;
-  const totalPlanned    = orders.filter((o) => o.status === "PLANNED").length;
+    for (const o of orders) {
+      const isToday =
+        new Date(o.created_at).toDateString() === todayString;
 
-  // Stats extras úteis
-  const totalProduced = orders.reduce((acc, o) => acc + (o.quantity_produced || 0), 0);
-  const totalPlannedQty = orders.reduce((acc, o) => acc + (o.quantity_planned || 0), 0);
+      if (isToday) {
+        producedToday += o.quantity_produced || 0;
+      }
 
-  const now = new Date();
-  const dateLabel = now.toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+      switch (o.status) {
+        case "IN_PROGRESS":
+          inProgress++;
+          break;
+        case "COMPLETED":
+          completed++;
+          break;
+        case "PLANNED":
+          planned++;
+          break;
+      }
 
-  if (loading) return <div className={styles.loader}>Carregando indicadores...</div>;
+      totalProduced += o.quantity_produced || 0;
+      totalPlannedQty += o.quantity_planned || 0;
+    }
+
+    return {
+      producedToday,
+      inProgress,
+      completed,
+      planned,
+      totalProduced,
+      totalPlannedQty,
+    };
+  }, [orders, todayString]);
+
+  // 📅 label da data
+  const dateLabel = useMemo(() => {
+    const now = new Date();
+
+    const formatted = now.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={styles.loader}>
+        Carregando indicadores...
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
+      {/* HEADER */}
       <header className={styles.header}>
-        <h1 className={styles.title}>Painel de Controle de Produção</h1>
-        <span className={styles.date}>
-          {dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1)}
-        </span>
+        <h1 className={styles.title}>
+          Painel de Controle de Produção
+        </h1>
+        <span className={styles.date}>{dateLabel}</span>
       </header>
 
-      {/* Linha 1 — stats principais do desafio */}
+      {/* PRINCIPAL */}
       <div className={styles.statsGrid}>
-        <Card
-          title="Produzido Hoje"
-          value={totalProducedToday.toLocaleString()}
-          accentColor
-        />
-        <Card
-          title="Em Produção"
-          value={totalInProgress}
-          accentColor
-        />
-        <Card
-          title="Concluídas"
-          value={totalCompleted}
-          accentColor
-        />
-        <Card
-          title="Planejadas"
-          value={totalPlanned}
-          accentColor
-        />
+        <Card title="Produzido Hoje" value={metrics.producedToday} accentColor />
+        <Card title="Em Produção" value={metrics.inProgress} accentColor />
+        <Card title="Concluídas" value={metrics.completed} accentColor />
+        <Card title="Planejadas" value={metrics.planned} accentColor />
       </div>
 
-      {/* Linha 2 — stats extras */}
+      {/* SECUNDÁRIO */}
       <div className={styles.statsGridSecondary}>
         <Card
           title="Total Produzido"
-          value={totalProduced.toLocaleString()}
+          value={metrics.totalProduced.toLocaleString()}
           accentColor
         />
+
         <Card
           title="Meta Total"
-          value={totalPlannedQty.toLocaleString()}
+          value={metrics.totalPlannedQty.toLocaleString()}
           accentColor
         />
+
         <Card
           title="Total de Ordens"
           value={orders.length}
@@ -101,10 +133,12 @@ const Home: React.FC = () => {
         />
       </div>
 
-      {/* Gráfico */}
+      {/* GRÁFICO */}
       <div className={styles.mainContent}>
         <Card className={styles.chartSection}>
-          <h3 className={styles.chartTitle}>Eficiência por Modelo</h3>
+          <h3 className={styles.chartTitle}>
+            Eficiência por Modelo
+          </h3>
           <ProductionChart orders={orders} />
         </Card>
       </div>
