@@ -8,6 +8,8 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import styles from "./ProductionOrders.module.css";
 
+import { RotateCcw } from "lucide-react";
+
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PLANNED: "Planejada",
   IN_PROGRESS: "Em Produção",
@@ -104,14 +106,6 @@ const ProductionOrders: React.FC = () => {
         }}
       >
         <h1>Ordens de Produção</h1>
-
-        <Button
-          size="sm"
-          color="green"
-          onClick={() => setIsCreateModalOpen(true)}
-        >
-          + Nova Ordem
-        </Button>
       </div>
 
       {/* TABLE */}
@@ -149,11 +143,13 @@ const ProductionOrders: React.FC = () => {
           {
             header: "Ações",
             render: (row: ProductionOrder) => (
-              <div style={{ display: "flex", gap: 5 }}>
+              <div
+                style={{ display: "flex", gap: 5, justifyContent: "flex-end" }}
+              >
                 {row.status === "PLANNED" && (
                   <Button
                     size="sm"
-                    color="green"
+                    variant="success"
                     onClick={() => handleStart(row.id)}
                   >
                     Começar
@@ -178,6 +174,7 @@ const ProductionOrders: React.FC = () => {
                   variant="outline"
                   onClick={() => handleReset(row.id)}
                 >
+                  <RotateCcw size={18} />
                   Reiniciar
                 </Button>
 
@@ -193,6 +190,15 @@ const ProductionOrders: React.FC = () => {
           },
         ]}
       />
+      <div className={styles.createAction}>
+        <Button
+          size="sm"
+          className={styles.createButton}
+          onClick={() => setIsCreateModalOpen(true)}
+        >
+          + Nova Ordem
+        </Button>
+      </div>
 
       {/* MODAL ADD PARES */}
       <Modal
@@ -203,10 +209,13 @@ const ProductionOrders: React.FC = () => {
         }}
         title="Adicionar Pares Feitos"
       >
-        <form onSubmit={handleAddPairs}>
-          <p>Quantos pares foram finalizados agora?</p>
+        <form onSubmit={handleAddPairs} className={styles.modalForm}>
+          <p className={styles.modalText}>
+            Quantos pares foram finalizados agora?
+          </p>
 
           <input
+            className={styles.input}
             type="number"
             value={qtyToAdd}
             onChange={(e) => setQtyToAdd(Number(e.target.value))}
@@ -217,10 +226,11 @@ const ProductionOrders: React.FC = () => {
                   selectedOrder.quantity_produced
                 : 999
             }
-            style={{ width: "100%", padding: 8, marginBottom: 10 }}
           />
 
-          <Button type="submit">Confirmar Produção</Button>
+          <Button type="submit" className={styles.submitButton}>
+            Confirmar Produção
+          </Button>
         </form>
       </Modal>
 
@@ -231,63 +241,64 @@ const ProductionOrders: React.FC = () => {
         title="Nova Ordem de Produção"
       >
         <form
-          onSubmit={async (e) => {
-            e.preventDefault();
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-            const form = new FormData(e.currentTarget);
+    const form = new FormData(e.currentTarget);
 
-            const payload = {
-              model_id: String(form.get("model_id")),
-              size: Number(form.get("size")),
-              quantity_planned: Number(form.get("quantity_planned")),
-            };
+    const payload = {
+      model_id: String(form.get("model_id")),
+      size: Number(form.get("size")),
+      quantity_planned: Number(form.get("quantity_planned")),
+    };
 
-            await ProductionOrderService.create(payload);
-            await loadAll();
+    await ProductionOrderService.create(payload);
+    await loadAll();
 
-            setIsCreateModalOpen(false);
-            (e.target as HTMLFormElement).reset(); // ✔ limpa form
-          }}
-        >
-          <select
-            name="model_id"
-            required
-            style={{ width: "100%", marginBottom: 10 }}
-          >
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+    setIsCreateModalOpen(false);
+    (e.target as HTMLFormElement).reset();
+  }}
+  className={styles.modalForm}
+>
+  <label className={styles.label}>Modelo</label>
+  <select name="model_id" required className={styles.select}>
+    <option value="" disabled selected>
+      Selecione o modelo
+    </option>
 
-          <select
-            name="size"
-            required
-            style={{ width: "100%", marginBottom: 10 }}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Selecione o tamanho
-            </option>
+    {models.map((m) => (
+      <option key={m.id} value={m.id}>
+        {m.name}
+      </option>
+    ))}
+  </select>
 
-            {Array.from({ length: 12 }, (_, i) => 33 + i).map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
+  <label className={styles.label}>Tamanho</label>
+  <select name="size" required defaultValue="" className={styles.select}>
+    <option value="" disabled>
+      Selecione o tamanho
+    </option>
 
-          <input
-            name="quantity_planned"
-            type="number"
-            placeholder="Quantidade planejada"
-            required
-            style={{ width: "100%", marginBottom: 10 }}
-          />
+    {Array.from({ length: 12 }, (_, i) => 33 + i).map((size) => (
+      <option key={size} value={size}>
+        {size}
+      </option>
+    ))}
+  </select>
 
-          <Button type="submit">Criar Ordem</Button>
-        </form>
+  <label className={styles.label}>Quantidade planejada</label>
+  <input
+    name="quantity_planned"
+    type="number"
+    placeholder="Ex: 100"
+    required
+    className={styles.input}
+  />
+
+  <button type="submit" className={styles.submitButton}>
+    Criar Ordem
+  </button>
+</form>
       </Modal>
     </div>
   );
