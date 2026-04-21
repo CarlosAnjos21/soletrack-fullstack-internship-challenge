@@ -6,6 +6,7 @@ import { ShoeModel } from "../types/shoeModel";
 import Card from "../components/Card";
 import ProductionChart from "../components/ProductionChart";
 import styles from "./Home.module.css";
+import { Factory, Settings, CheckCircle2, ClipboardList } from "lucide-react";
 
 const Home: React.FC = () => {
   const [orders, setOrders] = useState<ProductionOrder[]>([]);
@@ -19,7 +20,6 @@ const Home: React.FC = () => {
           ProductionOrderService.findAll(),
           ShoeModelService.findAll(),
         ]);
-
         setOrders(ordersData);
         setModels(modelsData);
       } catch (err) {
@@ -28,14 +28,10 @@ const Home: React.FC = () => {
         setLoading(false);
       }
     };
-
     loadData();
   }, []);
 
-  // hoje normalizado
-  const todayString = useMemo(() => {
-    return new Date().toISOString().split("T")[0];
-  }, []);
+  const todayString = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const metrics = useMemo(() => {
     let producedToday = 0;
@@ -46,19 +42,13 @@ const Home: React.FC = () => {
     let totalPlannedQty = 0;
 
     for (const o of orders) {
-      // segurança: start_date pode ser null
       const orderDate = o.start_date
         ? new Date(o.start_date).toISOString().split("T")[0]
         : null;
-
-      if (orderDate === todayString) {
-        producedToday += o.quantity_produced || 0;
-      }
-
+      if (orderDate === todayString) producedToday += o.quantity_produced || 0;
       if (o.status === "IN_PROGRESS") inProgress++;
       if (o.status === "COMPLETED") completed++;
       if (o.status === "PLANNED") planned++;
-
       totalProduced += o.quantity_produced || 0;
       totalPlannedQty += o.quantity_planned || 0;
     }
@@ -75,9 +65,7 @@ const Home: React.FC = () => {
 
   const progressPct = useMemo(() => {
     if (!metrics.totalPlannedQty) return 0;
-    return Math.round(
-      (metrics.totalProduced / metrics.totalPlannedQty) * 100
-    );
+    return Math.round((metrics.totalProduced / metrics.totalPlannedQty) * 100);
   }, [metrics]);
 
   const dateLabel = useMemo(() => {
@@ -87,13 +75,11 @@ const Home: React.FC = () => {
       month: "long",
       year: "numeric",
     });
-
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }, []);
 
-  if (loading) {
+  if (loading)
     return <div className={styles.loader}>Carregando indicadores...</div>;
-  }
 
   return (
     <div className={styles.container}>
@@ -102,32 +88,50 @@ const Home: React.FC = () => {
         <span className={styles.date}>{dateLabel}</span>
       </header>
 
-      {/* CARDS PRINCIPAIS */}
+      {/* CARDS PRINCIPAIS - Borda Superior */}
       <div className={styles.statsGrid}>
-        <Card title="Produzido Hoje" value={metrics.producedToday} accentColor />
-        <Card title="Em Produção" value={metrics.inProgress} accentColor />
-        <Card title="Concluídas" value={metrics.completed} accentColor />
-        <Card title="Planejadas" value={metrics.planned} accentColor />
+        <Card
+          title="PRODUZIDO HOJE"
+          value={metrics.producedToday}
+          className={`${styles.statCard} ${styles.blueTop}`}
+          icon={<Factory size={30} color="#3b82f6" />}
+        />
+        <Card
+          title="EM PRODUÇÃO"
+          value={metrics.inProgress}
+          className={`${styles.statCard} ${styles.orangeTop}`}
+          icon={<Settings size={30} color="#f97316" className={styles.spin} />}
+        />
+        <Card
+          title="CONCLUÍDAS"
+          value={metrics.completed}
+          className={`${styles.statCard} ${styles.greenTop}`}
+          icon={<CheckCircle2 size={30} color="#22c55e" />}
+        />
+        <Card
+          title="PLANEJADAS"
+          value={metrics.planned}
+          className={`${styles.statCard} ${styles.purpleTop}`}
+          icon={<ClipboardList size={30} color="#8b5cf6" />}
+        />
       </div>
 
-      {/* CARDS SECUNDÁRIOS */}
+      {/* CARDS SECUNDÁRIOS - Borda Lateral */}
       <div className={styles.statsGridSecondary}>
         <Card
           title="Total Produzido"
           value={metrics.totalProduced.toLocaleString("pt-BR")}
-          accentColor
+          className={`${styles.statCard} ${styles.blueLeft}`}
         />
-
         <Card
           title="Meta Total"
           value={metrics.totalPlannedQty.toLocaleString("pt-BR")}
-          accentColor
+          className={`${styles.statCard} ${styles.orangeLeft}`}
         />
-
         <Card
           title="Total de Ordens"
           value={orders.length}
-          accentColor
+          className={`${styles.statCard} ${styles.greenLeft}`}
         />
       </div>
 
@@ -137,7 +141,6 @@ const Home: React.FC = () => {
           <span className={styles.progressLabel}>Progresso geral</span>
           <span className={styles.progressPct}>{progressPct}%</span>
         </div>
-
         <div className={styles.progressTrack}>
           <div
             className={styles.progressFill}
@@ -148,10 +151,10 @@ const Home: React.FC = () => {
 
       {/* GRÁFICO */}
       <div className={styles.mainContent}>
-        <Card className={styles.chartSection}>
+        <div className={styles.chartSection}>
           <h3 className={styles.chartTitle}>Eficiência por Modelo</h3>
           <ProductionChart orders={orders} models={models} />
-        </Card>
+        </div>
       </div>
     </div>
   );
