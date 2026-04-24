@@ -23,7 +23,7 @@ const ShoeModels: React.FC = () => {
     try {
       setLoading(true);
       const data = await ShoeModelService.findAll();
-      setModels(data);
+      setModels(data || []);
     } catch (err) {
       console.error("Erro ao buscar modelos", err);
     } finally {
@@ -38,7 +38,7 @@ const ShoeModels: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.category.trim()) return;
+    if (!formData.name.trim()) return;
 
     try {
       await ShoeModelService.create({
@@ -47,7 +47,12 @@ const ShoeModels: React.FC = () => {
         base_cost: Number(formData.base_cost),
       });
 
-      setFormData({ name: "", category: "Tênis", base_cost: 0 });
+      setFormData({
+        name: "",
+        category: "Tênis",
+        base_cost: 0,
+      });
+
       await fetchModels();
     } catch (err) {
       alert("Erro ao salvar modelo. Verifique permissões.");
@@ -78,21 +83,30 @@ const ShoeModels: React.FC = () => {
     <div className={styles.container}>
       <h1 className={styles.title}>Modelos de Calçados</h1>
 
-      <Card className={styles.formCard} accentColor>
+      {/* FORM CARD */}
+      <Card className={styles.formCard}>
         <form onSubmit={handleSave} className={styles.row}>
           <Input
             label="Nome"
             value={formData.name}
-            onChange={(v) => setFormData((prev) => ({ ...prev, name: v }))}
+            onChange={(v) =>
+              setFormData((prev) => ({ ...prev, name: v }))
+            }
             required
           />
 
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <label style={{ fontSize: 13, fontWeight: 500 }}>Categoria</label>
+            <label style={{ fontSize: 13, fontWeight: 500 }}>
+              Categoria
+            </label>
+
             <select
               value={formData.category}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, category: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
               }
               style={{
                 padding: "8px 12px",
@@ -115,7 +129,10 @@ const ShoeModels: React.FC = () => {
             type="number"
             value={formData.base_cost}
             onChange={(v) =>
-              setFormData((prev) => ({ ...prev, base_cost: Number(v) }))
+              setFormData((prev) => ({
+                ...prev,
+                base_cost: Number(v),
+              }))
             }
             required
           />
@@ -126,6 +143,7 @@ const ShoeModels: React.FC = () => {
         </form>
       </Card>
 
+      {/* TABLE */}
       <Table
         data={models}
         columns={[
