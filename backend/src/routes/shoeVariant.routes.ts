@@ -1,16 +1,13 @@
 import { Router } from "express";
+import { ShoeVariantController } from "../controllers/shoeVariant.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/role.middleware";
-import {
-  getUsers,
-  removeUser,
-  updateRole,
-} from "../controllers/users.controller";
 
 const router = Router();
+const controller = new ShoeVariantController();
 
 /**
- * WRAPPER PADRÃO (mesmo padrão do projeto)
+ * WRAPPER PADRÃO (sem bind + tratamento de erro)
  */
 const catchAsync =
   (fn: any) => (req: any, res: any, next: any) =>
@@ -22,24 +19,22 @@ const catchAsync =
 router.use(authMiddleware);
 
 /**
- * 👤 USERS
+ * 📦 VARIANTS
  */
-router.get(
+router.post(
   "/",
   authorize("ADMIN"),
-  catchAsync(getUsers),
+  catchAsync(controller.create),
 );
 
-router.delete(
-  "/:id",
-  authorize("ADMIN"),
-  catchAsync(removeUser),
+router.get(
+  "/",
+  catchAsync(controller.findAll),
 );
 
-router.patch(
-  "/:id/role",
-  authorize("ADMIN"),
-  catchAsync(updateRole),
+router.get(
+  "/model/:model_id",
+  catchAsync(controller.findByModel),
 );
 
 export default router;

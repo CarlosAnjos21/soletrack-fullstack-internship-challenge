@@ -1,16 +1,13 @@
 import { Router } from "express";
+import { SizeController } from "../controllers/size.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/role.middleware";
-import {
-  getUsers,
-  removeUser,
-  updateRole,
-} from "../controllers/users.controller";
 
 const router = Router();
+const controller = new SizeController();
 
 /**
- * WRAPPER PADRÃO (mesmo padrão do projeto)
+ * WRAPPER PADRÃO
  */
 const catchAsync =
   (fn: any) => (req: any, res: any, next: any) =>
@@ -22,24 +19,17 @@ const catchAsync =
 router.use(authMiddleware);
 
 /**
- * 👤 USERS
+ * 📏 SIZES
  */
-router.get(
+router.post(
   "/",
   authorize("ADMIN"),
-  catchAsync(getUsers),
+  catchAsync(controller.create),
 );
 
-router.delete(
-  "/:id",
-  authorize("ADMIN"),
-  catchAsync(removeUser),
-);
-
-router.patch(
-  "/:id/role",
-  authorize("ADMIN"),
-  catchAsync(updateRole),
+router.get(
+  "/",
+  catchAsync(controller.findAll),
 );
 
 export default router;

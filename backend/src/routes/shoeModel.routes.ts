@@ -5,117 +5,50 @@ import { authorize } from "../middlewares/role.middleware";
 
 const router = Router();
 const controller = new ShoeModelController();
-const catchAsync = (fn: Function) => (req: any, res: any, next: any) =>
-  Promise.resolve(fn(req, res, next)).catch(next);
 
+/**
+ * WRAPPER PADRÃO (sem bind + centralizado)
+ */
+const catchAsync =
+  (fn: any) => (req: any, res: any, next: any) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
+
+/**
+ * 🔐 AUTH GLOBAL
+ */
 router.use(authMiddleware);
 
 /**
  * @swagger
  * tags:
  *   name: Models
- *   description: Rotas para gerenciar modelos de sapatos
+ *   description: Gestão de modelos de calçados
  */
 
 /**
- * @swagger
- * /api/models:
- *   post:
- *     summary: Cria um novo modelo de sapato
- *     tags: [Models]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - category
- *               - base_cost
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Tênis Esportivo"
- *               category:
- *                 type: string
- *                 example: "Esportivo"
- *               base_cost:
- *                 type: number
- *                 example: 120
- *     responses:
- *       201:
- *         description: Modelo criado com sucesso
+ * 📦 MODELS
  */
-router.post("/", authorize("ADMIN"), catchAsync(controller.create.bind(controller)));
+router.post(
+  "/",
+  authorize("ADMIN"),
+  catchAsync(controller.create),
+);
 
-/**
- * @swagger
- * /api/models:
- *   get:
- *     summary: Lista todos os modelos de sapato
- *     tags: [Models]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de modelos
- */
-router.get("/", catchAsync(controller.findAll.bind(controller)));
+router.get(
+  "/",
+  catchAsync(controller.findAll),
+);
 
-/**
- * @swagger
- * /api/models/{id}:
- *   put:
- *     summary: Atualiza um modelo de sapato
- *     tags: [Models]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               category:
- *                 type: string
- *               base_cost:
- *                 type: number
- *     responses:
- *       200:
- *         description: Modelo atualizado com sucesso
- */
-router.put("/:id", authorize("ADMIN"), catchAsync(controller.update.bind(controller)));
+router.put(
+  "/:id",
+  authorize("ADMIN"),
+  catchAsync(controller.update),
+);
 
-/**
- * @swagger
- * /api/models/{id}:
- *   delete:
- *     summary: Deleta um modelo de sapato
- *     tags: [Models]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       204:
- *         description: Modelo deletado com sucesso
- */
-router.delete("/:id", authorize("ADMIN"), catchAsync(controller.delete.bind(controller)));
+router.delete(
+  "/:id",
+  authorize("ADMIN"),
+  catchAsync(controller.delete),
+);
 
 export default router;

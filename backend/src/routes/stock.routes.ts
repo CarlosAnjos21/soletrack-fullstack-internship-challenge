@@ -1,16 +1,13 @@
 import { Router } from "express";
+import { StockController } from "../controllers/stock.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/role.middleware";
-import {
-  getUsers,
-  removeUser,
-  updateRole,
-} from "../controllers/users.controller";
 
 const router = Router();
+const controller = new StockController();
 
 /**
- * WRAPPER PADRÃO (mesmo padrão do projeto)
+ * WRAPPER PADRÃO
  */
 const catchAsync =
   (fn: any) => (req: any, res: any, next: any) =>
@@ -22,24 +19,17 @@ const catchAsync =
 router.use(authMiddleware);
 
 /**
- * 👤 USERS
+ * 📦 STOCK
  */
 router.get(
   "/",
-  authorize("ADMIN"),
-  catchAsync(getUsers),
-);
-
-router.delete(
-  "/:id",
-  authorize("ADMIN"),
-  catchAsync(removeUser),
+  catchAsync(controller.findAll),
 );
 
 router.patch(
-  "/:id/role",
-  authorize("ADMIN"),
-  catchAsync(updateRole),
+  "/",
+  authorize("ADMIN", "OPERATOR"),
+  catchAsync(controller.updateQuantity),
 );
 
 export default router;
