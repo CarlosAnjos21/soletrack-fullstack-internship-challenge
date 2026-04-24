@@ -20,6 +20,6 @@ router.use("/sizes", sizeRoutes);
 //DOMÍNIO: ESTOQUE
 router.use("/stock", stockRoutes);
 // DOMÍNIO: PRODUÇÃO
-router.use("/production", productionOrderRoutes);
+router.use("/orders", productionOrderRoutes);
 
 export default router;

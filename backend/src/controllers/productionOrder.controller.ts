@@ -14,8 +14,10 @@ const idSchema = z.object({
 });
 
 const createSchema = z.object({
-  variant_id: z.string().uuid(),
-  size_id: z.string().uuid(),
+  model_id: z.string().min(1),
+  color: z.string().min(1),
+  sole_color: z.string().min(1),
+  size: z.number().int().min(34).max(44),
   quantity_planned: z.number().int().positive(),
 });
 

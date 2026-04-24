@@ -6,9 +6,8 @@ import { authorize } from "../middlewares/role.middleware";
 const router = Router();
 const controller = new ProductionOrderController();
 
-const catchAsync =
-  (fn: any) => (req: any, res: any, next: any) =>
-    Promise.resolve(fn(req, res, next)).catch(next);
+const catchAsync = (fn: any) => (req: any, res: any, next: any) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
 
 /**
  * 🔐 AUTH GLOBAL
@@ -54,7 +53,7 @@ router.use(authMiddleware);
 router.post(
   "/",
   authorize("ADMIN", "OPERATOR"),
-  catchAsync(controller.create),
+  controller.create.bind(controller),
 );
 
 /**
@@ -69,7 +68,7 @@ router.post(
  *       200:
  *         description: Lista de ordens
  */
-router.get("/", catchAsync(controller.findAll));
+router.get("/", controller.findAll.bind(controller));
 
 /**
  * @swagger
@@ -83,7 +82,7 @@ router.get("/", catchAsync(controller.findAll));
  *       200:
  *         description: Métricas de produção
  */
-router.get("/dashboard", catchAsync(controller.dashboard));
+router.get("/dashboard", controller.dashboard.bind(controller));
 
 /**
  * @swagger
@@ -97,7 +96,7 @@ router.get("/dashboard", catchAsync(controller.dashboard));
 router.patch(
   "/:id/status",
   authorize("ADMIN", "OPERATOR"),
-  catchAsync(controller.updateStatus),
+  controller.updateStatus.bind(controller),
 );
 
 /**
@@ -112,7 +111,7 @@ router.patch(
 router.patch(
   "/:id/produce",
   authorize("ADMIN", "OPERATOR"),
-  catchAsync(controller.updateProduced),
+  controller.updateProduced.bind(controller),
 );
 
 /**
@@ -127,7 +126,7 @@ router.patch(
 router.patch(
   "/:id/reset",
   authorize("ADMIN", "OPERATOR"),
-  catchAsync(controller.resetProduction),
+  controller.reset.bind(controller),
 );
 
 /**
@@ -139,10 +138,6 @@ router.patch(
  *     security:
  *       - bearerAuth: []
  */
-router.delete(
-  "/:id",
-  authorize("ADMIN"),
-  catchAsync(controller.delete),
-);
+router.delete("/:id", authorize("ADMIN"), controller.delete.bind(controller));
 
 export default router;
