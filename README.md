@@ -25,6 +25,7 @@ O projeto foi construído aplicando conceitos de:
 - Banco de dados relacional;
 - ORM;
 - Boas práticas de desenvolvimento.
+- Front-end
 
 ---
 
