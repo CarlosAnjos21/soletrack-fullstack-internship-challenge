@@ -1,28 +1,141 @@
 # 🥿 SoleTrack
 
-**Sistema Fullstack de Controle de Produção de Calçados**
+# Sistema Full Stack de Controle de Produção de Calçados
 
-SoleTrack é um sistema fullstack para gerenciamento de produção de calçados em ambiente industrial. Ele permite o controle de usuários, modelos de calçados e ordens de produção, com autenticação JWT e controle de acesso baseado em perfis.
+<p align="center">
+  <img src="./frontend/public/banner.jpeg" alt="SoleTrack Banner">
+</p>
 
----
-
-# 📌 Funcionalidades
-
-- 🔐 Autenticação de usuários com JWT
-- 👥 Controle de acesso por perfil (**ADMIN** e **OPERATOR**)
-- 👤 Atualização de perfil de usuário
-- 📦 Gestão completa de ordens de produção
-- 👟 Gestão de modelos de calçados
-- 📊 Dashboard com métricas em tempo real
-- 🔒 Rotas protegidas (frontend e backend)
-- 📖 Documentação da API com Swagger
+<p align="center">
+  Sistema web desenvolvido para gerenciamento de produção industrial de calçados, permitindo controle de usuários, modelos, estoque e ordens de produção através de uma arquitetura Full Stack moderna.
+</p>
 
 ---
 
-# 🧠 Tecnologias
+# 📌 Sobre o Projeto
+
+O **SoleTrack** é uma aplicação Full Stack desenvolvida para simular um ambiente real de controle industrial, oferecendo uma solução centralizada para acompanhamento de processos produtivos.
+
+A plataforma permite gerenciar usuários, controlar permissões de acesso, cadastrar modelos de calçados e acompanhar ordens de produção com diferentes etapas e status.
+
+O projeto foi construído aplicando conceitos de:
+
+- Arquitetura cliente-servidor;
+- APIs REST;
+- Autenticação e autorização;
+- Banco de dados relacional;
+- ORM;
+- Boas práticas de desenvolvimento.
+
+---
+
+# 🚀 Funcionalidades
+
+## 🔐 Autenticação e Controle de Acesso
+
+- Login com autenticação JWT;
+- Rotas protegidas no frontend e backend;
+- Controle de permissões por perfil;
+- Perfis:
+  - ADMIN;
+  - OPERATOR.
+
+---
+
+## 👥 Gerenciamento de Usuários
+
+- Cadastro de operadores;
+- Atualização de informações do usuário;
+- Controle de perfis de acesso;
+- Gerenciamento de usuários administrativos.
+
+---
+
+## 📦 Ordens de Produção
+
+- Criação de ordens de produção;
+- Atualização de quantidade produzida;
+- Controle de status:
+  - Planejada;
+  - Em andamento;
+  - Concluída;
+- Acompanhamento do progresso produtivo.
+
+---
+
+## 👟 Modelos de Calçados
+
+- Cadastro de modelos;
+- Organização por categorias;
+- Controle de variantes;
+- Gerenciamento de produtos.
+
+---
+
+## 📊 Dashboard
+
+- Indicadores de produção;
+- Quantidade de ordens;
+- Status das produções;
+- Visão geral operacional.
+
+---
+
+# 📸 Demonstração do Sistema
+
+## 📊 Dashboard
+
+<p align="center">
+  <img src="./frontend/public/screenshots/dashboard.png" alt="Dashboard SoleTrack">
+</p>
+
+---
+
+## 🏭 Ordens de Produção
+
+<p align="center">
+  <img src="./frontend/public/screenshots/Producao.png" alt="Ordens de Produção SoleTrack">
+</p>
+
+---
+
+## 👟 Modelos de Calçados
+
+<p align="center">
+  <img src="./frontend/public/screenshots/modelos.png" alt="Modelos de Calçados SoleTrack">
+</p>
+
+---
+
+## 👤 Perfil do Usuário
+
+<p align="center">
+  <img src="./frontend/public/screenshots/perfil.png" alt="Perfil SoleTrack">
+</p>
+
+---
+
+## 👥 Gerenciar Usuários
+
+<p align="center">
+  <img src="./frontend/public/screenshots/usuarios.png" alt="Gerenciamento de Usuários SoleTrack">
+</p>
+
+---
+
+## 📝 Registrar Operador
+
+<p align="center">
+  <img src="./frontend/public/screenshots/registrar.png" alt="Registro de Operador SoleTrack">
+</p>
+
+---
+
+# 🧠 Tecnologias Utilizadas
 
 ## Frontend
-- React
+
+- React.js
 - TypeScript
 - Vite
 - React Router
@@ -30,15 +143,24 @@ SoleTrack é um sistema fullstack para gerenciamento de produção de calçados 
 - CSS Modules
 
 ## Backend
+
 - Node.js
-- Express
+- Express.js
 - TypeScript
 - Prisma ORM
 - JWT
 - Swagger
+- Helmet
 
 ## Banco de Dados
+
 - PostgreSQL
+
+## Ferramentas
+
+- Git
+- GitHub
+- VS Code
 
 ---
 
@@ -46,10 +168,12 @@ SoleTrack é um sistema fullstack para gerenciamento de produção de calçados 
 
 ```bash
 soletrack-fullstack/
+│
 ├── backend/
 │   ├── prisma/
 │   │   ├── migrations/
 │   │   └── schema.prisma
+│   │
 │   └── src/
 │       ├── controllers/
 │       ├── database/
@@ -59,10 +183,11 @@ soletrack-fullstack/
 │       ├── services/
 │       ├── utils/
 │       ├── app.ts
-│       ├── createAdmin.ts
+│       ├── seed.ts
 │       └── swagger.ts
 │
 └── frontend/
+    │
     └── src/
         ├── components/
         ├── context/
@@ -71,101 +196,4 @@ soletrack-fullstack/
         ├── routes/
         ├── services/
         ├── styles/
-        ├── types/
-        ├── App.tsx
         └── main.tsx
-```
-
-
----
-
-# ⚙️ Pré-requisitos
-
-- Node.js >= 18
-- npm >= 9
-- PostgreSQL >= 14
-
----
-
-# 🔧 Configuração do Ambiente
-
-## 1. Clonar o repositório
-
-```bash
-git clone https://github.com/seu-usuario/soletrack-fullstack.git
-cd soletrack-fullstack
-
-2. Criar o banco de dados
-CREATE DATABASE shoetrack_production;
-
-3. Configurar variáveis de ambiente no backend, copie o arquivo de exemplo:
-cd backend
-cp .env.example .env
-
-Exemplo de .env
-DATABASE_URL="postgresql://user:password@localhost:5432/shoetrack_production"
-JWT_SECRET="your_jwt_secret_here"
-PORT=3000
-FRONTEND_URL="http://localhost:5173"
-
-Como executar o projeto
-
-O projeto precisa de dois terminais rodando simultaneamente.
-
-🔹 Backend
-cd backend
-npm install
-npm run migrate
-npm run dev
-
-Servidor:
-
-http://localhost:3000
-🔹 Frontend
-cd frontend
-npm install
-npm run dev
-
-Aplicação:
-http://localhost:5173
-
-Documentação da API
-
-Após iniciar o backend:
-
-http://localhost:3000/api-docs
-🔐 Autenticação
-Exemplo de resposta
-{
-  "token": "string",
-  "user": {
-    "id": "string",
-    "name": "string",
-    "role": "ADMIN | OPERATOR"
-  }
-}
-
-Perfis de acesso
-Perfil	Permissões
-ADMIN	Acesso total ao sistema (usuários, ordens e modelos)
-OPERATOR	Acesso às operações de produção
-
-📊 Módulos do sistema
-📦 Ordens de Produção
-Criar ordens
-Atualizar produção
-Reiniciar produção
-Excluir ordens (com regras de status)
-
-👟 Modelos de Calçados
-Cadastro e listagem de modelos
-
-📊 Dashboard
-Produção total
-Produção diária
-Status de ordens
-Progresso geral
-👨‍💻 Autor
-
-Desenvolvido por Carlos Otacílio Rodrigues dos Anjos
-Projeto fullstack demonstrando integração entre frontend, backend, autenticação JWT, ORM e banco de dados relacional.
