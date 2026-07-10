@@ -124,9 +124,13 @@ async function seed() {
   ) => {
     const isCompleted = status === "COMPLETED";
 
-    await prisma.productionOrder.create({
-      data: {
-        id: `OP-2026-${String(opCount++).padStart(3, "0")}`,
+    const currentId = `OP-2026-${String(opCount++).padStart(3, "0")}`;
+
+    await prisma.productionOrder.upsert({
+      where: { id: currentId },
+      update: {},
+      create: {
+        id: currentId,
         variant_id: variant.id,
         size_id: size.id,
         quantity_planned,
